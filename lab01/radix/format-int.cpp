@@ -28,7 +28,7 @@ int StringToInt(const std::string & str, int radix, bool & wasError)
 		sign = true;
 	}
 
-	unsigned long long number = 0;
+	long long number = 0;
 	for (; iter != str.end(); ++iter)
 	{
 		const char c = *iter;
