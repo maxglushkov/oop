@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.9.2)
 project(radix VERSION 0.0 LANGUAGES CXX)
+enable_testing()
 
 find_package(Doxygen REQUIRED)
 set(DOXYGEN_EXTRACT_ALL YES)
@@ -16,4 +17,9 @@ set_target_properties(
 	CXX_STANDARD 17
 	CXX_STANDARD_REQUIRED NO
 	CXX_EXTENSIONS NO
+)
+
+add_test(
+	NAME all
+	COMMAND "${CMAKE_SOURCE_DIR}/test" "${CMAKE_BINARY_DIR}/radix"
 )
