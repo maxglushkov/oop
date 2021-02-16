@@ -30,15 +30,14 @@ int main(int argc, const char *argv[])
 		return 1;
 	}
 
-	const int intValue = StringToInt(argv[3], sourceNotation, wasError);
-	if (wasError)
+	const std::string && result = ChangeRadix(argv[3], sourceNotation, destinationNotation);
+	if (result.empty())
 	{
 		cerr << "The number is too big or has invalid format.\n";
 		return 1;
 	}
 
-	const std::string & strValue = IntToString(intValue, destinationNotation, wasError);
-	std::cout << strValue << '\n';
+	std::cout << result << '\n';
 	return 0;
 }
 

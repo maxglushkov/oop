@@ -29,5 +29,15 @@ int StringToInt(const std::string & str, int radix, bool & wasError);
 /// \details Преобразование завершается с ошибкой, если `IsValidRadix(radix)` – ложно.
 std::string IntToString(int n, int radix, bool & wasError);
 
+/// \brief Преобразует целое число, записанное в виде строки с одним основанием системы счисления,
+/// 	в строку с другим основанием системы счисления.
+/// \param[in] strValue Исходная строка в формате `/-?[0-9A-Z]+/`
+/// \param[in] sourceNotation Основание системы счисления, в которой записано число в `strValue`
+/// \param[in] destinationNotation Основание системы счисления, в которой требуется записать число
+/// \return Возвращает число в виде строки с требуемым основанием системы счисления.
+/// 	В случае ошибки строка будет пустой.
+/// \details Завершается с ошибкой, если `StringToInt` или `IntToString` завершилась с ошибкой.
+std::string ChangeRadix(const std::string & strValue, int sourceNotation, int destinationNotation);
+
 /// \brief Печатает в поток ошибок сообщение о допустимых основаниях системы счисления.
 void PrintRadixConstraints();

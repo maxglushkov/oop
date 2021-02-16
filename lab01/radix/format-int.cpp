@@ -21,13 +21,14 @@ int StringToInt(const std::string & str, int radix, bool & wasError)
 	auto iter = str.begin();
 	if (iter == str.end()) return 0;
 
-	bool sign = false;
+	bool isNegative = false;
 	if (*iter == '-')
 	{
 		++iter;
-		sign = true;
+		isNegative = true;
 	}
 
+	static_assert(sizeof(long long) > sizeof(int), "long long must be wider than int");
 	long long number = 0;
 	for (; iter != str.end(); ++iter)
 	{
@@ -40,11 +41,11 @@ int StringToInt(const std::string & str, int radix, bool & wasError)
 		}
 
 		number = number * radix + digit;
-		if (sign ? -number < INT_MIN : number > INT_MAX) return 0;
+		if (isNegative ? -number < INT_MIN : number > INT_MAX) return 0;
 	}
 
 	wasError = false;
-	return sign ? -number : number;
+	return isNegative ? -number : number;
 }
 
 string IntToString(int n, int radix, bool & wasError)
@@ -72,6 +73,19 @@ string IntToString(int n, int radix, bool & wasError)
 	}
 	wasError = false;
 	return str;
+}
+
+string ChangeRadix(const std::string & strValue, int sourceNotation, int destinationNotation)
+{
+	bool wasError;
+
+	const int intValue = StringToInt(strValue, sourceNotation, wasError);
+	if (wasError) return string();
+
+	const string && strResult = IntToString(intValue, destinationNotation, wasError);
+	if (wasError) return string();
+
+	return strResult;
 }
 
 void PrintRadixConstraints()
