@@ -24,13 +24,13 @@ int StringToInt(const std::string & str, int radix, bool & wasError)
 	bool isNegative = false;
 	if (*iter == '-')
 	{
-		++iter;
+		if (++iter == str.end()) return 0;
 		isNegative = true;
 	}
 
 	static_assert(sizeof(long long) > sizeof(int), "long long must be wider than int");
 	long long number = 0;
-	for (; iter != str.end(); ++iter)
+	do
 	{
 		const char c = *iter;
 		unsigned char digit = 0;
@@ -43,6 +43,7 @@ int StringToInt(const std::string & str, int radix, bool & wasError)
 		number = number * radix + digit;
 		if (isNegative ? -number < INT_MIN : number > INT_MAX) return 0;
 	}
+	while (++iter != str.end());
 
 	wasError = false;
 	return isNegative ? -number : number;
@@ -53,24 +54,20 @@ string IntToString(int n, int radix, bool & wasError)
 	wasError = true;
 	if (!IsValidRadix(radix)) return string();
 
-	string str;
-	if (n == 0)
-	{
-		str.push_back(DIGITS[0]);
-	}
-	else
-	{
-		long long number = n;
-		if (number < 0) number = -number;
-		while (number)
-		{
-			str.push_back(DIGITS[number % radix]);
-			number /= radix;
-		}
+	long long number = n;
+	if (number < 0) number = -number;
 
-		if (n < 0) str.push_back('-');
-		reverse(str.begin(), str.end());
+	string str;
+	do
+	{
+		str.push_back(DIGITS[number % radix]);
+		number /= radix;
 	}
+	while (number);
+
+	if (n < 0) str.push_back('-');
+	reverse(str.begin(), str.end());
+
 	wasError = false;
 	return str;
 }

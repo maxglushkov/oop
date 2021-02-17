@@ -32,3 +32,5 @@ RunTest "radix == 1" 16 1 0 ""
 RunTest "radix > 36" 37 36 Z ""
 RunTest "radix == 36" 36 10 XZ 1223
 RunTest "<source notation>-<value> mismatch" 35 10 Z ""
+RunTest "" 2 8 "" ""
+RunTest "-" 8 2 - ""
