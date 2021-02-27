@@ -1,0 +1,40 @@
+#!/bin/sh
+if [ $# -ne 1 ]
+then
+	echo "Usage: $0 <path to replace executable>" >&2
+	exit 1
+fi
+tests="$(dirname "$0")/"
+replace="$1"
+tempFile="$(mktemp -u)"
+
+# Usage: RunTest <test name> <test files name> <search string> <replace string>
+function RunTest()
+{
+	echo -n "Test \"$1\" ... "
+
+	if "$replace" "$tests$2.in" "$tempFile" "$3" "$4"
+	then
+		diff -q "$tempFile" "$tests$2.out"
+	else
+		[ ! -f "$tests$2.out" ]
+	fi
+	local failure=$?
+
+	rm -f "$tempFile"
+
+	if [ $failure -eq 0 ]
+	then
+		printf "\033[0;32mSucceeded\033[0m\n"
+	else
+		printf "\033[0;31mFailed\033[0m\n"
+		exit 1
+	fi
+}
+
+RunTest "Unexistent input" 0 "expression" "replacement"
+touch "$tempFile" && chmod -w "$tempFile" || exit 1
+RunTest "Non-writable output" 1 "expression" "replacement"
+RunTest "Without trailing empty line" 2 "ёж" "ёжёж"
+RunTest "With trailing empty line" 3 "1231234" "АбвАбвГ"
+RunTest "Empty search string" 4 "" "(этого текста быть не должно)"
