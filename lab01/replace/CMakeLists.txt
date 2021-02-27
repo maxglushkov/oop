@@ -17,7 +17,7 @@ add_executable(replace ${SOURCES})
 set_target_properties(
 	replace PROPERTIES
 	CXX_STANDARD 17
-	CXX_STANDARD_REQUIRED NO
+	CXX_STANDARD_REQUIRED YES
 	CXX_EXTENSIONS NO
 )
 

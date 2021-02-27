@@ -1,6 +1,13 @@
 #pragma once
 #include <iostream>
 
+enum StreamReplaceError
+{
+	Success,
+	IOError,
+	TooLongLine
+};
+
 /// \brief Заменяет все вхождения подстроки в заданной строке на другую строку.
 /// \param[in] original Исходная (заданная) строка
 /// \param[in] searchStr Заменяемая подстрока
@@ -15,11 +22,11 @@ std::string TextStringReplace(const std::string & original,
 /// \param[in] output Выходной поток
 /// \param[in] searchStr Заменяемая подстрока
 /// \param[in] replacementStr Заменяющая строка
-/// \return Возвращает `true`, если был успешно достигнут конец входного потока.  
-/// 	При попытке обработать строку длиннее `std::string::max_size`, а также
-/// 	при ошибке ввода-вывода, возвращает `false`.
+/// \return Возвращает `Success`, если был успешно достигнут конец входного потока.  
+/// 	При ошибке ввода-вывода возвращает `IOError`.  
+/// 	При попытке обработать строку длиннее `std::string::max_size` возвращает `TooLongLine`.
 /// \details Потоки обрабатываются построчно. В связи с этим:
 /// 	1. Обработка строк длиннее `std::string::max_size` приводит к ошибке.
 /// 	2. Символы перевода строки не обрабатываются.
-bool TextStreamReplace(std::istream & input, std::ostream & output,
+StreamReplaceError TextStreamReplace(std::istream & input, std::ostream & output,
 	const std::string & searchStr, const std::string & replacementStr);

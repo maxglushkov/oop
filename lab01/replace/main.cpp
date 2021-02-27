@@ -29,14 +29,18 @@ int main(int argc, const char *argv[])
 		return 1;
 	}
 
-	if (!TextStreamReplace(input, output, argv[3], argv[4]))
+	switch (TextStreamReplace(input, output, argv[3], argv[4]))
 	{
-		cerr << "Input file contains too long lines or IO error occurred.\n";
-		return 1;
+		case Success:
+			if (output.flush()) return 0;
+			[[fallthrough]];
+		case IOError:
+			cerr << "IO error occurred.\n";
+			break;
+		case TooLongLine:
+			cerr << "Input file contains too long lines.\n";
 	}
-
-	output.flush();
-	return 0;
+	return 1;
 }
 
 void PrintUsage(const char *programName)

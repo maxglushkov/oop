@@ -16,15 +16,22 @@ std::string TextStringReplace(const std::string & original,
 	return result;
 }
 
-bool TextStreamReplace(std::istream & input, std::ostream & output,
+StreamReplaceError TextStreamReplace(std::istream & input, std::ostream & output,
 	const std::string & searchStr, const std::string & replacementStr)
 {
 	string line;
 	while (std::getline(input, line))
 	{
 		output << TextStringReplace(line, searchStr, replacementStr);
-		if (input.eof()) return true;
+		if (!output) return IOError;
+
+		if (input.eof()) return Success;
+
 		output << '\n';
+		if (!output) return IOError;
 	}
-	return input.eof();
+
+	if (input.eof()) return Success;
+	if (input.bad()) return IOError;
+	return TooLongLine;
 }
