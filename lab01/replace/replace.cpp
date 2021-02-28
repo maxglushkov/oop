@@ -4,6 +4,8 @@ using std::string;
 std::string TextStringReplace(const std::string & original,
 	const std::string & searchStr, const std::string & replacementStr)
 {
+	if (searchStr.empty()) return original;
+
 	string result;
 	string::size_type searchPos = 0, foundPos;
 	while ((foundPos = original.find(searchStr, searchPos)) != string::npos)

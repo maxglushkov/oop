@@ -12,7 +12,8 @@ enum StreamReplaceError
 /// \param[in] original Исходная (заданная) строка
 /// \param[in] searchStr Заменяемая подстрока
 /// \param[in] replacementStr Заменяющая строка
-/// \return Возвращает результат замены в виде новой строки.
+/// \return Возвращает результат замены в виде новой строки.  
+/// 	Если `searchStr` – пустая строка, возвращает копию `original`.
 std::string TextStringReplace(const std::string & original,
 	const std::string & searchStr, const std::string & replacementStr);
 
@@ -28,5 +29,7 @@ std::string TextStringReplace(const std::string & original,
 /// \details Потоки обрабатываются построчно. В связи с этим:
 /// 	1. Обработка строк длиннее `std::string::max_size` приводит к ошибке.
 /// 	2. Символы перевода строки не обрабатываются.
+///
+/// 	Если `searchStr` – пустая строка, производит построчное копирование `input` в `output`.
 StreamReplaceError TextStreamReplace(std::istream & input, std::ostream & output,
 	const std::string & searchStr, const std::string & replacementStr);
