@@ -25,15 +25,15 @@ StreamReplaceError TextStreamReplace(std::istream & input, std::ostream & output
 	while (std::getline(input, line))
 	{
 		output << TextStringReplace(line, searchStr, replacementStr);
-		if (!output) return IOError;
+		if (!output) return StreamReplaceError::IOError;
 
-		if (input.eof()) return Success;
+		if (input.eof()) return StreamReplaceError::Success;
 
 		output << '\n';
-		if (!output) return IOError;
+		if (!output) return StreamReplaceError::IOError;
 	}
 
-	if (input.eof()) return Success;
-	if (input.bad()) return IOError;
-	return TooLongLine;
+	if (input.eof()) return StreamReplaceError::Success;
+	if (input.bad()) return StreamReplaceError::IOError;
+	return StreamReplaceError::TooLongLine;
 }

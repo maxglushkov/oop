@@ -31,13 +31,13 @@ int main(int argc, const char *argv[])
 
 	switch (TextStreamReplace(input, output, argv[3], argv[4]))
 	{
-		case Success:
+		case StreamReplaceError::Success:
 			if (output.flush()) return 0;
 			[[fallthrough]];
-		case IOError:
+		case StreamReplaceError::IOError:
 			cerr << "IO error occurred.\n";
 			break;
-		case TooLongLine:
+		case StreamReplaceError::TooLongLine:
 			cerr << "Input file contains too long lines.\n";
 	}
 	return 1;

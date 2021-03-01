@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 
-enum StreamReplaceError
+enum class StreamReplaceError
 {
 	Success,
 	IOError,
