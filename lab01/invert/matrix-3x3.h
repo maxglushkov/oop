@@ -9,12 +9,16 @@ class Matrix3x3
 public:
 	friend std::istream & operator >>(std::istream & input, Matrix3x3 & matrix)
 	{
-		for (size_t y = 0; y < MATRIX_SIDE; ++y)
+		size_t x = 0, y = 0;
+		while (y < MATRIX_SIDE)
 		{
-			for (size_t x = 0; x < MATRIX_SIDE; ++x)
+			input >> matrix.m_data[y][x];
+			if (!input) break;
+
+			if (++x == MATRIX_SIDE)
 			{
-				input >> matrix.m_data[y][x];
-				if (!input) return input;
+				x = 0;
+				++y;
 			}
 		}
 		return input;
@@ -22,16 +26,23 @@ public:
 
 	friend std::ostream & operator <<(std::ostream & output, Matrix3x3 const& matrix)
 	{
-		output.precision(3);
-		for (size_t y = 0; y < MATRIX_SIDE; ++y)
+		size_t x = 0, y = 0;
+		while (y < MATRIX_SIDE)
 		{
-			for (size_t x = 0; x < MATRIX_SIDE; ++x)
+			output << matrix.m_data[y][x];
+			if (!output) break;
+
+			if (++x == MATRIX_SIDE)
 			{
-				output << matrix.m_data[y][x] << '\t';
-				if (!output) return output;
+				x = 0;
+				++y;
+				output << '\n';
 			}
-			output << '\n';
-			if (!output) return output;
+			else
+			{
+				output << '\t';
+			}
+			if (!output) break;
 		}
 		return output;
 	}
@@ -53,7 +64,7 @@ public:
 		dst[2][2] = src[0][0] * src[1][1] - src[0][1] * src[1][0];
 
 		const T det = src[0][0] * dst[0][0] + src[0][1] * dst[1][0] + src[0][2] * dst[2][0];
-		if (!det) throw std::invalid_argument("Singular matrix");
+		if (!det) throw std::invalid_argument("singular matrix");
 
 		for (size_t y = 0; y < MATRIX_SIDE; ++y)
 		{

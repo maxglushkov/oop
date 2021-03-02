@@ -1,6 +1,7 @@
 #include <fstream>
 #include "matrix-3x3.h"
 using std::cerr;
+using std::cout;
 
 /// \brief Печатает сообщение об использовании.
 /// \param[in] programName Название, c которым программа была запущена.
@@ -24,9 +25,24 @@ int main(int argc, const char *argv[])
 
 	Matrix3x3 matrix;
 	input >> matrix;
-	std::cout << matrix.Invert();
+	if (!input)
+	{
+		cerr << "Cannot load matrix from \"" << argv[1] << "\": input-output or format error.\n";
+		return 1;
+	}
 
-	return 0;
+	try
+	{
+		cout.setf(std::ios::fixed);
+		cout.precision(3);
+		cout << matrix.Invert();
+		return 0;
+	}
+	catch (std::invalid_argument e)
+	{
+		cerr << "Failed to invert matrix: " << e.what() << '\n';
+	}
+	return 1;
 }
 
 void PrintUsage(const char *programName)
