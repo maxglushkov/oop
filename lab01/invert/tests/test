@@ -1,0 +1,29 @@
+#!/bin/sh
+if [ $# -ne 1 ]
+then
+	echo "Usage: $0 <path to invert executable>" >&2
+	exit 1
+fi
+tests="$(dirname "$0")/"
+invert="$1"
+
+# Usage: RunTest <test name> <test files name>
+function RunTest()
+{
+	echo -n "Test \"$1\" ... "
+	if [ "$("$invert" "$tests$2.in")" == "$(cat "$tests$2.out" 2>/dev/null)" ]
+	then
+		printf "\033[0;32mSucceeded\033[0m\n"
+	else
+		printf "\033[0;31mFailed\033[0m\n"
+		exit 1
+	fi
+}
+
+RunTest "Unexistent input" 0
+RunTest "Invertible matrix" 1
+RunTest "Singular matrix" 2
+RunTest "Empty input" 3
+RunTest "Single line input" 4
+RunTest "Garbage in input" 5
+RunTest "Simple matrix" 6
