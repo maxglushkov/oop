@@ -9,9 +9,7 @@ set<int> GeneratePrimeNumbersSet(int upperBound)
 	set<int> primes;
 	if (upperBound < MIN_PRIME) return primes;
 
-	std::vector<bool> isPrime;
-	isPrime.resize(upperBound + 1, true);
-
+	std::vector<bool> isPrime(upperBound + 1, true);
 	for (int factor = MIN_PRIME;; ++factor)
 	{
 		if (!isPrime[factor]) continue;
