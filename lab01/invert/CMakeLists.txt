@@ -11,12 +11,13 @@ endif()
 set(
 	SOURCES
 	main.cpp
+	matrix-3x3.cpp
 )
 add_executable(invert ${SOURCES})
 set_target_properties(
 	invert PROPERTIES
 	CXX_STANDARD 17
-	CXX_STANDARD_REQUIRED NO
+	CXX_STANDARD_REQUIRED YES
 	CXX_EXTENSIONS NO
 )
 

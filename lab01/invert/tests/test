@@ -20,10 +20,10 @@ function RunTest()
 	fi
 }
 
-RunTest "Unexistent input" 0
-RunTest "Invertible matrix" 1
-RunTest "Singular matrix" 2
-RunTest "Empty input" 3
-RunTest "Single line input" 4
-RunTest "Garbage in input" 5
-RunTest "Simple matrix" 6
+RunTest "Unexistent input" unexistent
+RunTest "Invertible matrix" invertible
+RunTest "Singular matrix" singular
+RunTest "Empty input" empty
+RunTest "Single line input" single-line
+RunTest "Garbage in input" garbage
+RunTest "Simple matrix" simple

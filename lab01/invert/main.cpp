@@ -1,7 +1,6 @@
 #include <fstream>
 #include "matrix-3x3.h"
-using std::cerr;
-using std::cout;
+using std::cerr, std::cout;
 
 /// \brief Печатает сообщение об использовании.
 /// \param[in] programName Название, c которым программа была запущена.
@@ -16,18 +15,18 @@ int main(int argc, const char *argv[])
 		return 1;
 	}
 
-	std::ifstream input(argv[1]);
+	const char *const matrixFile = argv[1];
+	std::ifstream input(matrixFile);
 	if (!input)
 	{
-		cerr << "Cannot open file \"" << argv[1] << "\" for input.\n";
+		cerr << "Cannot open file \"" << matrixFile << "\" for input.\n";
 		return 1;
 	}
 
 	Matrix3x3 matrix;
-	input >> matrix;
-	if (!input)
+	if (!matrix.Read(input))
 	{
-		cerr << "Cannot load matrix from \"" << argv[1] << "\": input-output or format error.\n";
+		cerr << "Cannot load matrix from \"" << matrixFile << "\": input-output or format error.\n";
 		return 1;
 	}
 
@@ -35,7 +34,7 @@ int main(int argc, const char *argv[])
 	{
 		cout.setf(std::ios::fixed);
 		cout.precision(3);
-		cout << matrix.Invert();
+		matrix.Invert().Write(cout);
 		return 0;
 	}
 	catch (std::invalid_argument e)
