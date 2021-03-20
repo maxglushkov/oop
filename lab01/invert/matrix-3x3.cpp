@@ -1,29 +1,39 @@
+#include <sstream>
 #include "matrix-3x3.h"
 
-std::istream & Matrix3x3::Read(std::istream & input)
+bool Matrix3x3::Read(std::istream & input)
 {
-	size_t x = 0, y = 0;
-	while (y < SIDE)
+	std::string row;
+	for (size_t y = 0; y < SIDE; ++y)
 	{
-		input >> m_data[y][x];
-		if (!input) break;
-
-		if (++x == SIDE)
+		if (!std::getline(input, row))
 		{
-			x = 0;
-			++y;
+			return false;
+		}
+
+		std::istringstream inputRow(row);
+		for (size_t x = 0; x < SIDE; ++x)
+		{
+			inputRow >> m_data[y][x];
+			if (!inputRow)
+			{
+				return false;
+			}
 		}
 	}
-	return input;
+	return true;
 }
 
-std::ostream & Matrix3x3::Write(std::ostream & output)const
+bool Matrix3x3::Write(std::ostream & output)const
 {
 	size_t x = 0, y = 0;
 	while (y < SIDE)
 	{
 		output << m_data[y][x];
-		if (!output) break;
+		if (!output)
+		{
+			return false;
+		}
 
 		if (++x == SIDE)
 		{
@@ -35,9 +45,12 @@ std::ostream & Matrix3x3::Write(std::ostream & output)const
 		{
 			output << '\t';
 		}
-		if (!output) break;
+		if (!output)
+		{
+			return false;
+		}
 	}
-	return output;
+	return true;
 }
 
 Matrix3x3 Matrix3x3::Invert() const

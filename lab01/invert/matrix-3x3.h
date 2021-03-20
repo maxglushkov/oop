@@ -4,9 +4,9 @@
 class Matrix3x3
 {
 public:
-	std::istream & Read(std::istream & input);
+	bool Read(std::istream & input);
 
-	std::ostream & Write(std::ostream & output)const;
+	bool Write(std::ostream & output)const;
 
 	Matrix3x3 Invert()const;
 

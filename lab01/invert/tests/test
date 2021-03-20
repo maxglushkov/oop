@@ -25,5 +25,7 @@ RunTest "Invertible matrix" invertible
 RunTest "Singular matrix" singular
 RunTest "Empty input" empty
 RunTest "Single line input" single-line
+RunTest "Lopsided input" lopsided
+RunTest "Oversized input" oversized
 RunTest "Garbage in input" garbage
 RunTest "Simple matrix" simple
