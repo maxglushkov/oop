@@ -1,16 +1,11 @@
 #pragma once
 #include <iostream>
 
-class Matrix3x3
-{
-public:
-	bool Read(std::istream & input);
+constexpr size_t MATRIX_SIDE = 3;
+typedef double Matrix3x3[MATRIX_SIDE][MATRIX_SIDE];
 
-	bool Write(std::ostream & output)const;
+bool ReadMatrix(std::istream & input, Matrix3x3 matrix);
 
-	Matrix3x3 Invert()const;
+bool WriteMatrix(std::ostream & output, const Matrix3x3 matrix);
 
-private:
-	constexpr static size_t SIDE = 3;
-	double m_data[SIDE][SIDE];
-};
+bool InvertMatrix(const Matrix3x3 original, Matrix3x3 inverted);

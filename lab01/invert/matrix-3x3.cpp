@@ -1,10 +1,10 @@
 #include <sstream>
 #include "matrix-3x3.h"
 
-bool Matrix3x3::Read(std::istream & input)
+bool ReadMatrix(std::istream & input, Matrix3x3 matrix)
 {
 	std::string row;
-	for (size_t y = 0; y < SIDE; ++y)
+	for (size_t y = 0; y < MATRIX_SIDE; ++y)
 	{
 		if (!std::getline(input, row))
 		{
@@ -12,9 +12,9 @@ bool Matrix3x3::Read(std::istream & input)
 		}
 
 		std::istringstream inputRow(row);
-		for (size_t x = 0; x < SIDE; ++x)
+		for (size_t x = 0; x < MATRIX_SIDE; ++x)
 		{
-			inputRow >> m_data[y][x];
+			inputRow >> matrix[y][x];
 			if (!inputRow)
 			{
 				return false;
@@ -24,18 +24,18 @@ bool Matrix3x3::Read(std::istream & input)
 	return true;
 }
 
-bool Matrix3x3::Write(std::ostream & output)const
+bool WriteMatrix(std::ostream & output, const Matrix3x3 matrix)
 {
 	size_t x = 0, y = 0;
-	while (y < SIDE)
+	while (y < MATRIX_SIDE)
 	{
-		output << m_data[y][x];
+		output << matrix[y][x];
 		if (!output)
 		{
 			return false;
 		}
 
-		if (++x == SIDE)
+		if (++x == MATRIX_SIDE)
 		{
 			x = 0;
 			++y;
@@ -53,34 +53,30 @@ bool Matrix3x3::Write(std::ostream & output)const
 	return true;
 }
 
-Matrix3x3 Matrix3x3::Invert()const
+bool InvertMatrix(const Matrix3x3 original, Matrix3x3 inverted)
 {
-	Matrix3x3 inverted;
+	inverted[0][0] = original[1][1] * original[2][2] - original[1][2] * original[2][1];
+	inverted[0][1] = original[0][2] * original[2][1] - original[0][1] * original[2][2];
+	inverted[0][2] = original[0][1] * original[1][2] - original[0][2] * original[1][1];
+	inverted[1][0] = original[1][2] * original[2][0] - original[1][0] * original[2][2];
+	inverted[1][1] = original[0][0] * original[2][2] - original[0][2] * original[2][0];
+	inverted[1][2] = original[0][2] * original[1][0] - original[0][0] * original[1][2];
+	inverted[2][0] = original[1][0] * original[2][1] - original[1][1] * original[2][0];
+	inverted[2][1] = original[0][1] * original[2][0] - original[0][0] * original[2][1];
+	inverted[2][2] = original[0][0] * original[1][1] - original[0][1] * original[1][0];
 
-	const auto & src = m_data;
-	auto & dst = inverted.m_data;
-	dst[0][0] = src[1][1] * src[2][2] - src[1][2] * src[2][1];
-	dst[0][1] = src[0][2] * src[2][1] - src[0][1] * src[2][2];
-	dst[0][2] = src[0][1] * src[1][2] - src[0][2] * src[1][1];
-	dst[1][0] = src[1][2] * src[2][0] - src[1][0] * src[2][2];
-	dst[1][1] = src[0][0] * src[2][2] - src[0][2] * src[2][0];
-	dst[1][2] = src[0][2] * src[1][0] - src[0][0] * src[1][2];
-	dst[2][0] = src[1][0] * src[2][1] - src[1][1] * src[2][0];
-	dst[2][1] = src[0][1] * src[2][0] - src[0][0] * src[2][1];
-	dst[2][2] = src[0][0] * src[1][1] - src[0][1] * src[1][0];
-
-	const double det = src[0][0] * dst[0][0] + src[0][1] * dst[1][0] + src[0][2] * dst[2][0];
+	const double det = original[0][0] * inverted[0][0] + original[0][1] * inverted[1][0] + original[0][2] * inverted[2][0];
 	if (!det)
 	{
-		throw std::invalid_argument("singular matrix");
+		return false;
 	}
 
-	for (size_t y = 0; y < SIDE; ++y)
+	for (size_t y = 0; y < MATRIX_SIDE; ++y)
 	{
-		for (size_t x = 0; x < SIDE; ++x)
+		for (size_t x = 0; x < MATRIX_SIDE; ++x)
 		{
-			dst[y][x] /= det;
+			inverted[y][x] /= det;
 		}
 	}
-	return inverted;
+	return true;
 }

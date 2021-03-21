@@ -23,25 +23,24 @@ int main(int argc, const char *argv[])
 		return 1;
 	}
 
-	Matrix3x3 matrix;
-	if (!matrix.Read(input))
+	Matrix3x3 originalMatrix;
+	if (!ReadMatrix(input, originalMatrix))
 	{
 		cerr << "Cannot load matrix from \"" << matrixFile << "\": input-output or format error.\n";
 		return 1;
 	}
 
-	try
+	Matrix3x3 invertedMatrix;
+	if (!InvertMatrix(originalMatrix, invertedMatrix))
 	{
-		cout.setf(std::ios::fixed);
-		cout.precision(3);
-		matrix.Invert().Write(cout);
-		return 0;
+		cerr << "Failed to invert matrix: singular matrix\n";
+		return 1;
 	}
-	catch (std::invalid_argument e)
-	{
-		cerr << "Failed to invert matrix: " << e.what() << '\n';
-	}
-	return 1;
+
+	cout.setf(std::ios::fixed);
+	cout.precision(3);
+	WriteMatrix(cout, invertedMatrix);
+	return 0;
 }
 
 void PrintUsage(const char *programName)
