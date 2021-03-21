@@ -8,9 +8,15 @@ public:
 
 	bool Write(std::ostream & output)const;
 
-	Matrix3x3 Invert()const;
+	Matrix3x3 CalculateInverseMatrix()const;
+
+protected:
+	constexpr static size_t SIDE = 3;
+
+	Matrix3x3 CalculateTransposedCofactorsMatrix()const;
+
+	double CalculateDeterminant(Matrix3x3 const& transposedCofactors)const;
 
 private:
-	constexpr static size_t SIDE = 3;
 	double m_data[SIDE][SIDE];
 };

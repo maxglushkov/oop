@@ -34,7 +34,7 @@ int main(int argc, const char *argv[])
 	{
 		cout.setf(std::ios::fixed);
 		cout.precision(3);
-		matrix.Invert().Write(cout);
+		matrix.CalculateInverseMatrix().Write(cout);
 		return 0;
 	}
 	catch (std::invalid_argument e)
