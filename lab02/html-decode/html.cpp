@@ -12,7 +12,10 @@ string HtmlDecode(std::string const& html)
 		beginPos = endPos;
 
 		endPos = html.find(';', beginPos);
-		if (endPos == string::npos) break;
+		if (endPos == string::npos)
+		{
+			break;
+		}
 		++beginPos;
 
 		const string_view entity(html.data() + beginPos, endPos - beginPos);
@@ -36,12 +39,21 @@ bool HtmlDecodeStream(std::istream & input, std::ostream & output)
 	while (std::getline(input, line))
 	{
 		output << HtmlDecode(line);
-		if (!output) return false;
+		if (!output)
+		{
+			return false;
+		}
 
-		if (input.eof()) return true;
+		if (input.eof())
+		{
+			return true;
+		}
 
 		output << '\n';
-		if (!output) return false;
+		if (!output)
+		{
+			return false;
+		}
 	}
 	return input.eof();
 }

@@ -21,7 +21,10 @@ int main(int argc, const char *argv[])
 
 void PrintUsage(const char *programName)
 {
-	if (!programName) programName = "html-decode";
+	if (!programName)
+	{
+		programName = "html-decode";
+	}
 	cerr << "Usage: " << programName << '\n';
 	cerr << "Decodes html-encoded text from standard input to standard output.\n";
 }

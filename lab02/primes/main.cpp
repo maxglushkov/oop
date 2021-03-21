@@ -21,7 +21,10 @@ int main(int argc, const char *argv[])
 	{
 		size_t convertionEndPos;
 		upperBound = std::stoi(argv[1], &convertionEndPos);
-		if (argv[1][convertionEndPos]) throw std::exception();
+		if (argv[1][convertionEndPos])
+		{
+			throw std::exception();
+		}
 	}
 	catch (std::exception e)
 	{
@@ -36,6 +39,9 @@ int main(int argc, const char *argv[])
 
 void PrintUsage(const char *programName)
 {
-	if (!programName) programName = "primes";
+	if (!programName)
+	{
+		programName = "primes";
+	}
 	cerr << "Usage: " << programName << " <upper bound>\n";
 }

@@ -46,6 +46,9 @@ int main(int argc, const char *argv[])
 
 void PrintUsage(const char *programName)
 {
-	if (!programName) programName = "invert";
+	if (!programName)
+	{
+		programName = "invert";
+	}
 	cerr << "Usage: " << programName << " <matrix file1>\n";
 }

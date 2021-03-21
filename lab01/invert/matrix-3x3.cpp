@@ -53,7 +53,7 @@ bool Matrix3x3::Write(std::ostream & output)const
 	return true;
 }
 
-Matrix3x3 Matrix3x3::Invert() const
+Matrix3x3 Matrix3x3::Invert()const
 {
 	Matrix3x3 inverted;
 
@@ -70,7 +70,10 @@ Matrix3x3 Matrix3x3::Invert() const
 	dst[2][2] = src[0][0] * src[1][1] - src[0][1] * src[1][0];
 
 	const double det = src[0][0] * dst[0][0] + src[0][1] * dst[1][0] + src[0][2] * dst[2][0];
-	if (!det) throw std::invalid_argument("singular matrix");
+	if (!det)
+	{
+		throw std::invalid_argument("singular matrix");
+	}
 
 	for (size_t y = 0; y < SIDE; ++y)
 	{
