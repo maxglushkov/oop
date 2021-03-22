@@ -8,17 +8,14 @@ TEST_CASE("Negative upper bound")
 
 TEST_CASE("Upper bounds in range [0; 10]")
 {
-	REQUIRE(GeneratePrimeNumbersSet(0).size() == 0);
-	REQUIRE(GeneratePrimeNumbersSet(1).size() == 0);
-	REQUIRE(GeneratePrimeNumbersSet(2).size() == 1);
-	REQUIRE(GeneratePrimeNumbersSet(3).size() == 2);
-	REQUIRE(GeneratePrimeNumbersSet(4).size() == 2);
-	REQUIRE(GeneratePrimeNumbersSet(5).size() == 3);
-	REQUIRE(GeneratePrimeNumbersSet(6).size() == 3);
-	REQUIRE(GeneratePrimeNumbersSet(7).size() == 4);
-	REQUIRE(GeneratePrimeNumbersSet(8).size() == 4);
-	REQUIRE(GeneratePrimeNumbersSet(9).size() == 4);
-	REQUIRE(GeneratePrimeNumbersSet(10).size() == 4);
+	const std::set<int> PRIME_NUMBERS{2, 3, 5, 7};
+	for (int upperBound = 0; upperBound <= 10; ++upperBound)
+	{
+		REQUIRE(std::equal(
+			PRIME_NUMBERS.begin(), PRIME_NUMBERS.upper_bound(upperBound),
+			GeneratePrimeNumbersSet(upperBound).begin()
+		));
+	}
 }
 
 TEST_CASE("Large upper bound (100000000)")
