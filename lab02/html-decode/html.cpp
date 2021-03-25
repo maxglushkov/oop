@@ -9,20 +9,14 @@ string HtmlDecode(std::string const& html)
 	while ((endPos = html.find('&', beginPos)) != string::npos)
 	{
 		text.append(html, beginPos, endPos - beginPos);
-		beginPos = endPos;
+		beginPos = endPos + 1;
 
-		endPos = html.find(';', beginPos);
-		if (endPos == string::npos)
-		{
-			break;
-		}
-		++beginPos;
-
-		const string_view entity(html.data() + beginPos, endPos - beginPos);
-		if (const char decoded = DecodeHtmlEntity(entity))
+		const string_view entity(html.data() + beginPos, html.size() - beginPos);
+		char decoded;
+		if (size_t entitySize = DecodeHtmlEntity(entity, decoded))
 		{
 			text.push_back(decoded);
-			beginPos = endPos + 1;
+			beginPos += entitySize;
 		}
 		else
 		{

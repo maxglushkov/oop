@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <array>
 #include "html-entity.h"
 using namespace std::literals;
@@ -13,12 +14,12 @@ struct HtmlToText
 		,m_text(text)
 	{
 	}
-
-	bool operator <(string_view const& other)const
-	{
-		return m_html < other;
-	}
 };
+
+bool operator <(string_view const& lhs, HtmlToText const& rhs)
+{
+	return lhs < rhs.m_html;
+}
 
 constexpr std::array<HtmlToText, 5> SORTED_ENTITIES =
 {
@@ -29,15 +30,24 @@ constexpr std::array<HtmlToText, 5> SORTED_ENTITIES =
 	HtmlToText("quot"sv, '"')
 };
 
-char DecodeHtmlEntity(std::string_view const& entity)
+size_t DecodeHtmlEntity(std::string_view const& entity, char & decoded)
 {
-	const auto && iter = std::lower_bound(SORTED_ENTITIES.begin(), SORTED_ENTITIES.end(), entity);
+	auto && iter = std::upper_bound(SORTED_ENTITIES.begin(), SORTED_ENTITIES.end(), entity);
 
-	if (iter != SORTED_ENTITIES.end())
+	if (iter != SORTED_ENTITIES.begin())
 	{
-		if (iter->m_html == entity)
+		--iter;
+
+		const size_t entitySize = iter->m_html.size();
+		if (entity.compare(0, entitySize, iter->m_html) == 0)
 		{
-			return iter->m_text;
+			decoded = iter->m_text;
+
+			if (entitySize < entity.size())
+			{
+				if (entity[entitySize] == ';') return entitySize + 1;
+			}
+			return entitySize;
 		}
 	}
 	return 0;
