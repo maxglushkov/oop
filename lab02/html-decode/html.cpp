@@ -9,7 +9,7 @@ string HtmlDecode(std::string const& html)
 	while ((endPos = html.find('&', beginPos)) != string::npos)
 	{
 		text.append(html, beginPos, endPos - beginPos);
-		beginPos = endPos + 1;
+		beginPos = endPos;
 
 		const string_view entity(html.data() + beginPos, html.size() - beginPos);
 		char decoded;
@@ -21,6 +21,7 @@ string HtmlDecode(std::string const& html)
 		else
 		{
 			text.push_back('&');
+			++beginPos;
 		}
 	}
 	text.append(html, beginPos);
@@ -32,22 +33,22 @@ bool HtmlDecodeStream(std::istream & input, std::ostream & output)
 	string line;
 	while (std::getline(input, line))
 	{
-		output << HtmlDecode(line);
 		if (!output)
 		{
 			return false;
 		}
+		output << HtmlDecode(line);
 
 		if (input.eof())
 		{
 			return true;
 		}
 
-		output << '\n';
 		if (!output)
 		{
 			return false;
 		}
+		output << '\n';
 	}
-	return input.eof();
+	return input.eof() ? bool(output.flush()) : false;
 }
