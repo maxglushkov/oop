@@ -14,8 +14,13 @@ int main(int argc, const char *argv[])
 		return 1;
 	}
 
-	std::vector<double> numbers;
-	ReadVector(std::cin, numbers);
+	DoubleVector numbers;
+	if (!ReadVector(std::cin, numbers))
+	{
+		PrintUsage(argv[0]);
+		return 1;
+	}
+
 	ProcessVector(numbers);
 	WriteVector(std::cout, numbers);
 	return 0;
