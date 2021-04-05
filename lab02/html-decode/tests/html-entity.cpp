@@ -14,18 +14,16 @@ bool TestHtmlEntityDecoding(std::string_view const& testEntity, size_t expectedS
 
 TEST_CASE("Checking entity-character mapping")
 {
-	REQUIRE(TestHtmlEntityDecoding("&amp"sv, 4, '&'));
-	REQUIRE(TestHtmlEntityDecoding("&apos"sv, 5, '\''));
-	REQUIRE(TestHtmlEntityDecoding("&gt"sv, 3, '>'));
-	REQUIRE(TestHtmlEntityDecoding("&lt"sv, 3, '<'));
-	REQUIRE(TestHtmlEntityDecoding("&quot"sv, 5, '"'));
+	REQUIRE(TestHtmlEntityDecoding("&amp;"sv, 5, '&'));
+	REQUIRE(TestHtmlEntityDecoding("&apos;"sv, 6, '\''));
+	REQUIRE(TestHtmlEntityDecoding("&gt;"sv, 4, '>'));
+	REQUIRE(TestHtmlEntityDecoding("&lt;"sv, 4, '<'));
+	REQUIRE(TestHtmlEntityDecoding("&quot;"sv, 6, '"'));
 }
 
 TEST_CASE("Checking entities that should be mapped")
 {
 	REQUIRE(TestHtmlEntityDecoding("&amp;TEXT"sv, 5, '&'));
-	REQUIRE(TestHtmlEntityDecoding("&lt&gt"sv, 3, '<'));
-	REQUIRE(TestHtmlEntityDecoding("&quote;"sv, 5, '"'));
 }
 
 TEST_CASE("Checking entities that should not be mapped")
@@ -37,5 +35,6 @@ TEST_CASE("Checking entities that should not be mapped")
 	REQUIRE(!DecodeHtmlEntity("AMP"sv, decoded));
 	REQUIRE(!DecodeHtmlEntity("apos;"sv, decoded));
 	REQUIRE(!DecodeHtmlEntity("{quote}"sv, decoded));
+	REQUIRE(!DecodeHtmlEntity("&lt&gt"sv, decoded));
 	REQUIRE(decoded == CANARY);
 }
