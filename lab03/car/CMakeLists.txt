@@ -16,4 +16,5 @@ endif()
 add_executable(
 	car
 	main.cpp
+	car-controller-cli.cpp
 )

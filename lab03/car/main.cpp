@@ -1,5 +1,5 @@
 #include <iostream>
-#include "car.h"
+#include "car-controller-cli.h"
 using std::cerr;
 
 /// \brief Печатает сообщение об использовании.
@@ -13,6 +13,20 @@ int main(int argc, const char *argv[])
 	{
 		PrintUsage(argv[0]);
 		return 1;
+	}
+
+	Car car;
+	const CarControllerCli controller(car, std::cin, std::cout, cerr);
+
+	std::vector<std::string> arguments;
+	CarControllerCli::Command command;
+	while ((command = controller.PromptCommand(arguments)) != CarControllerCli::Command::Quit)
+	{
+		const CarControllerCli::Error error = controller.ExecCommand(command, arguments);
+		if (error != CarControllerCli::Error::Success)
+		{
+			controller.PrintError(error);
+		}
 	}
 
 	return 0;
