@@ -27,7 +27,8 @@ public:
 		InvalidArgument,
 		EngineOff,
 		StillMoving,
-		GearIsSet
+		GearIsSet,
+		SpeedGearMismatch
 	};
 
 	CarControllerCli(Car & car, std::istream & input, std::ostream & output, std::ostream & error)
@@ -78,6 +79,8 @@ protected:
 				return "the car is still moving";
 			case Error::GearIsSet:
 				return "the gear is set";
+			case Error::SpeedGearMismatch:
+				return "speed-gear mismatch";
 			default:
 				return "unknown error";
 		}
@@ -104,7 +107,7 @@ protected:
 		{
 			case Direction1D::Backward:
 				return "moving backward";
-			case Direction1D::None:
+			case Direction1D::Standstill:
 				return "not moving";
 			case Direction1D::Forward:
 				return "moving forward";

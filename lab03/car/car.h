@@ -3,19 +3,25 @@
 enum class Direction1D: signed char
 {
 	Backward = -1,
-	None,
+	Standstill,
 	Forward
+};
+
+enum Sign: signed
+{
+	Minus = -1,
+	Plus = 1
 };
 
 class Car
 {
 public:
-	bool IsTurnedOn()
+	bool IsTurnedOn()const
 	{
 		return m_isEngineOn;
 	}
 
-	Direction1D GetDirection()
+	Direction1D GetDirection()const
 	{
 		if (m_speedProjection < 0)
 		{
@@ -25,15 +31,15 @@ public:
 		{
 			return Direction1D::Forward;
 		}
-		return Direction1D::None;
+		return Direction1D::Standstill;
 	}
 
-	int GetSpeed()
+	int GetSpeed()const
 	{
-		return m_speedProjection < 0 ? -m_speedProjection : m_speedProjection;
+		return m_speedProjection >= 0 ? m_speedProjection : -m_speedProjection;
 	}
 
-	int GetGear()
+	int GetGear()const
 	{
 		return m_gear;
 	}
@@ -77,13 +83,25 @@ public:
 		return true;
 	}
 
+	bool IsValidSpeedForGear(int speed, int gear)const
+	{
+		const int LOWER_BOUNDS[] = {0,  0,          0,  20, 30, 40, 50};
+		const int UPPER_BOUNDS[] = {20, GetSpeed(), 30, 50, 60, 90, 150};
+		if (gear < -1 || gear > 5)
+		{
+			return false;
+		}
+		++gear;
+		return speed >= LOWER_BOUNDS[gear] && speed <= UPPER_BOUNDS[gear];
+	}
+
 protected:
-	bool CanTurnOffEngine()
+	bool CanTurnOffEngine()const
 	{
 		return !m_gear && !m_speedProjection;
 	}
 
-	bool CanSetGear(int gear)
+	bool CanSetGear(int gear)const
 	{
 		if (!gear || gear == m_gear)
 		{
@@ -95,61 +113,29 @@ protected:
 			return false;
 		}
 
-		if (gear == -1)
+		if (gear < 0)
 		{
 			return m_speedProjection == 0;
 		}
 		return IsValidSpeedForGear(m_speedProjection, gear);
 	}
 
-	bool CanSetSpeed(int speed)
+	bool CanSetSpeed(int speed)const
 	{
-		if (!m_gear)
-		{
-			return speed >= 0 ? speed <= GetSpeed() : false;
-		}
 		return IsValidSpeedForGear(speed, m_gear);
 	}
 
-	int GetSpeedProjectionSign()
+	Sign GetSpeedProjectionSign()const
 	{
 		if (m_gear < 0)
 		{
-			return -1;
+			return Minus;
 		}
 		if (m_gear > 0)
 		{
-			return 1;
+			return Plus;
 		}
-		return m_speedProjection >= 0 ? 1 : -1;
-	}
-
-	static bool IsValidSpeedForGear(int speed, int gear)
-	{
-		if (speed < 0)
-		{
-			return false;
-		}
-
-		switch (gear)
-		{
-			case -1:
-				return speed <= 20;
-			case 0:
-				return true;
-			case 1:
-				return speed <= 30;
-			case 2:
-				return speed >= 20 && speed <= 50;
-			case 3:
-				return speed >= 30 && speed <= 60;
-			case 4:
-				return speed >= 40 && speed <= 90;
-			case 5:
-				return speed >= 50 && speed <= 150;
-			default:
-				return false;
-		}
+		return m_speedProjection >= 0 ? Plus : Minus;
 	}
 
 private:

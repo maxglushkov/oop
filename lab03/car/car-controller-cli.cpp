@@ -5,6 +5,7 @@ using std::string;
 CarControllerCli::Command CarControllerCli::PromptCommand(std::vector<std::string> & args)const
 {
 	m_output << "> ";
+	args.clear();
 
 	string cmdLine;
 	if (!std::getline(m_input, cmdLine))
@@ -43,7 +44,6 @@ CarControllerCli::Command CarControllerCli::PromptCommand(std::vector<std::strin
 			{
 				cmd = Command::Unknown;
 			}
-			args.clear();
 		}
 		else
 		{
@@ -136,9 +136,13 @@ CarControllerCli::Error CarControllerCli::SetGear(int gear)const
 		{
 			return Error::EngineOff;
 		}
-		if (m_car.GetDirection() == Direction1D::Backward)
+		if (gear < 0 && m_car.GetSpeed())
 		{
 			return Error::StillMoving;
+		}
+		if (!m_car.IsValidSpeedForGear(m_car.GetSpeed(), gear))
+		{
+			return Error::SpeedGearMismatch;
 		}
 		return Error::Unknown;
 	}
@@ -152,6 +156,10 @@ CarControllerCli::Error CarControllerCli::SetSpeed(int speed)const
 		if (speed < 0)
 		{
 			return Error::InvalidArgument;
+		}
+		if (!m_car.IsValidSpeedForGear(speed, m_car.GetGear()))
+		{
+			return Error::SpeedGearMismatch;
 		}
 		return Error::Unknown;
 	}
