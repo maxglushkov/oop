@@ -134,9 +134,21 @@ CarControllerCli::Error CarControllerCli::SetGear(int gear)const
 		{
 			return Error::EngineOff;
 		}
-		if (gear < 0 && m_car.GetSpeed())
+		switch (gear)
 		{
-			return Error::StillMoving;
+			case -1:
+				if (m_car.GetSpeed())
+				{
+					return Error::StillMoving;
+				}
+				break;
+			case 0:
+				break;
+			default:
+				if (m_car.GetDirection() == Direction1D::Backward)
+				{
+					return Error::SpeedGearMismatch;
+				}
 		}
 		if (!m_car.IsValidSpeedForGear(m_car.GetSpeed(), gear))
 		{

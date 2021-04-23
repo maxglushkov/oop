@@ -121,3 +121,11 @@ TEST_CASE("Driving backwards")
 	REQUIRE(car.SetGear(0));
 	REQUIRE(car.TurnOffEngine());
 }
+
+TEST_CASE("Out-of-bound gears")
+{
+	Car car;
+	REQUIRE(car.TurnOnEngine());
+	REQUIRE(!car.SetGear(-2));
+	REQUIRE(!car.SetGear(6));
+}

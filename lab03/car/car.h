@@ -124,7 +124,7 @@ private:
 			return false;
 		}
 
-		if (gear < 0)
+		if (gear == -1)
 		{
 			return m_speedProjection == 0;
 		}
