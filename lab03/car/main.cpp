@@ -16,19 +16,8 @@ int main(int argc, const char *argv[])
 	}
 
 	Car car;
-	const CarControllerCli controller(car, std::cin, std::cout, cerr);
-
-	std::vector<std::string> arguments;
-	CarControllerCli::Command command;
-	while ((command = controller.PromptCommand(arguments)) != CarControllerCli::Command::Quit)
-	{
-		const CarControllerCli::Error error = controller.ExecCommand(command, arguments);
-		if (error != CarControllerCli::Error::Success)
-		{
-			controller.PrintError(error);
-		}
-	}
-
+	CarControllerCli controller(car, std::cin, std::cout, cerr);
+	while (controller.RunCycle());
 	return 0;
 }
 

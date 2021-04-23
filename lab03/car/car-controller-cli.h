@@ -6,6 +6,33 @@
 class CarControllerCli
 {
 public:
+	CarControllerCli(Car & car, std::istream & input, std::ostream & output, std::ostream & error)
+		:m_car(car)
+		,m_input(input)
+		,m_output(output)
+		,m_error(error)
+	{
+	}
+
+	bool RunCycle()
+	{
+		m_command = Command::None;
+		m_arguments.clear();
+		PromptCommand();
+		if (m_command == Command::Quit)
+		{
+			return false;
+		}
+
+		const Error error = ExecCommand();
+		if (error != Error::Success)
+		{
+			m_error << "Error: " << ErrorMessage(error) << '\n';
+		}
+		return true;
+	}
+
+private:
 	enum class Command
 	{
 		Unknown = -1,
@@ -31,24 +58,12 @@ public:
 		SpeedGearMismatch
 	};
 
-	CarControllerCli(Car & car, std::istream & input, std::ostream & output, std::ostream & error)
-		:m_car(car)
-		,m_input(input)
-		,m_output(output)
-		,m_error(error)
-	{
-	}
+	Car & m_car;
+	std::istream & m_input;
+	std::ostream & m_output, & m_error;
+	Command m_command;
+	std::vector<std::string> m_arguments;
 
-	Command PromptCommand(std::vector<std::string> & args)const;
-
-	Error ExecCommand(Command cmd, std::vector<std::string> const& args)const;
-
-	void PrintError(Error error)const
-	{
-		m_error << "Error: " << ErrorMessage(error) << '\n';
-	}
-
-protected:
 	constexpr static size_t RequiredArgsCount(Command cmd)
 	{
 		switch (cmd)
@@ -85,6 +100,10 @@ protected:
 				return "unknown error";
 		}
 	}
+
+	void PromptCommand();
+
+	Error ExecCommand()const;
 
 	Error Info()const;
 
@@ -127,9 +146,4 @@ protected:
 				return '0' + gear;
 		}
 	}
-
-private:
-	Car & m_car;
-	std::istream & m_input;
-	std::ostream & m_output, & m_error;
 };

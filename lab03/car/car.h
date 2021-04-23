@@ -7,12 +7,6 @@ enum class Direction1D: signed char
 	Forward
 };
 
-enum Sign: signed
-{
-	Minus = -1,
-	Plus = 1
-};
-
 class Car
 {
 public:
@@ -85,17 +79,34 @@ public:
 
 	bool IsValidSpeedForGear(int speed, int gear)const
 	{
-		const int LOWER_BOUNDS[] = {0,  0,          0,  20, 30, 40, 50};
-		const int UPPER_BOUNDS[] = {20, GetSpeed(), 30, 50, 60, 90, 150};
-		if (gear < -1 || gear > 5)
+		constexpr static int LOWER_BOUNDS[] = {0,  0,  20, 30, 40, 50};
+		constexpr static int UPPER_BOUNDS[] = {20, 30, 50, 60, 90, 150};
+		if (gear < 0)
 		{
-			return false;
+			if (gear < -1)
+			{
+				return false;
+			}
+			++gear;
 		}
-		++gear;
+		else if (gear > 0)
+		{
+			if (gear > 5)
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return speed >= 0 && speed <= GetSpeed();
+		}
 		return speed >= LOWER_BOUNDS[gear] && speed <= UPPER_BOUNDS[gear];
 	}
 
-protected:
+private:
+	int m_gear = 0, m_speedProjection = 0;
+	bool m_isEngineOn = false;
+
 	bool CanTurnOffEngine()const
 	{
 		return !m_gear && !m_speedProjection;
@@ -125,20 +136,16 @@ protected:
 		return IsValidSpeedForGear(speed, m_gear);
 	}
 
-	Sign GetSpeedProjectionSign()const
+	int GetSpeedProjectionSign()const
 	{
 		if (m_gear < 0)
 		{
-			return Minus;
+			return -1;
 		}
 		if (m_gear > 0)
 		{
-			return Plus;
+			return 1;
 		}
-		return m_speedProjection >= 0 ? Plus : Minus;
+		return m_speedProjection >= 0 ? 1 : -1;
 	}
-
-private:
-	int m_gear = 0, m_speedProjection = 0;
-	bool m_isEngineOn = false;
 };
