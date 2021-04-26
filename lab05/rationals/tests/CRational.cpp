@@ -145,11 +145,28 @@ TEST_CASE("Checking rational equivalence")
 TEST_CASE("Checking rational ordering")
 {
 	REQUIRE(CRational(1, 2) > CRational(1, 3));
+	REQUIRE_FALSE(CRational(1, 2) > CRational(1, 2));
+	REQUIRE_FALSE(CRational(1, 3) > CRational(1, 2));
+
 	REQUIRE_FALSE(CRational(1, 2) <= CRational(1, 3));
+	REQUIRE(CRational(1, 3) <= CRational(1, 3));
+	REQUIRE(CRational(1, 3) <= CRational(1, 2));
+
 	REQUIRE(CRational(3, 1) > 2);
+	REQUIRE_FALSE(CRational(3, 1) > 3);
+	REQUIRE_FALSE(2 > CRational(3, 1));
+
 	REQUIRE(CRational(1, 2) < 7);
+	REQUIRE_FALSE(CRational(7) < 7);
+	REQUIRE_FALSE(7 < CRational(1, 2));
+
 	REQUIRE(3 <= CRational(7, 2));
+	REQUIRE(CRational(7, 2) <= CRational(7, 2));
+	REQUIRE_FALSE(CRational(7, 2) <= 3);
+
 	REQUIRE_FALSE(3 >= CRational(8, 2));
+	REQUIRE(CRational(12, 3) >= CRational(8, 2));
+	REQUIRE(CRational(8, 2) >= 3);
 }
 
 TEST_CASE("Checking formatted input-output")

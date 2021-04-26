@@ -87,24 +87,24 @@ private:
 	static Rational FromUnchecked(int numerator, int denominator);
 };
 
-inline CRational operator +(CRational const& lhs, CRational const& rhs)
+inline CRational operator +(CRational lhs, CRational const& rhs)
 {
-	return CRational(lhs) += rhs;
+	return lhs += rhs;
 }
 
-inline CRational operator -(CRational const& lhs, CRational const& rhs)
+inline CRational operator -(CRational lhs, CRational const& rhs)
 {
-	return CRational(lhs) -= rhs;
+	return lhs -= rhs;
 }
 
-inline CRational operator *(CRational const& lhs, CRational const& rhs)
+inline CRational operator *(CRational lhs, CRational const& rhs)
 {
-	return CRational(lhs) *= rhs;
+	return lhs *= rhs;
 }
 
-inline CRational operator /(CRational const& lhs, CRational const& rhs)
+inline CRational operator /(CRational lhs, CRational const& rhs)
 {
-	return CRational(lhs) /= rhs;
+	return lhs /= rhs;
 }
 
 inline bool operator ==(CRational const& lhs, CRational const& rhs)
