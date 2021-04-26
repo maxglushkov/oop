@@ -2,60 +2,61 @@
 #include "car-controller-cli.h"
 using std::string;
 
-void CarControllerCli::PromptCommand()
+CarControllerCli::Command CarControllerCli::PromptCommand(std::vector<std::string> & args)const
 {
 	m_output << "> ";
 
 	string cmdLine;
 	if (!std::getline(m_input, cmdLine))
 	{
-		m_command = Command::Quit;
-		return;
+		return Command::Quit;
 	}
 
+	Command cmd = Command::None;
 	std::istringstream arguments(cmdLine);
 	string argument;
 	while (arguments >> argument)
 	{
-		if (m_command == Command::None)
+		if (cmd == Command::None)
 		{
 			if (argument == "Info")
 			{
-				m_command = Command::Info;
+				cmd = Command::Info;
 			}
 			else if (argument == "EngineOn")
 			{
-				m_command = Command::EngineOn;
+				cmd = Command::EngineOn;
 			}
 			else if (argument == "EngineOff")
 			{
-				m_command = Command::EngineOff;
+				cmd = Command::EngineOff;
 			}
 			else if (argument == "SetGear")
 			{
-				m_command = Command::SetGear;
+				cmd = Command::SetGear;
 			}
 			else if (argument == "SetSpeed")
 			{
-				m_command = Command::SetSpeed;
+				cmd = Command::SetSpeed;
 			}
 			else
 			{
-				m_command = Command::Unknown;
+				cmd = Command::Unknown;
 			}
 		}
 		else
 		{
-			m_arguments.push_back(argument);
+			args.push_back(argument);
 		}
 	}
+	return cmd;
 }
 
-CarControllerCli::Error CarControllerCli::ExecCommand()const
+CarControllerCli::Error CarControllerCli::ExecCommand(Command cmd, std::vector<std::string> const& args)const
 {
-	if (m_command != Command::Unknown)
+	if (cmd != Command::Unknown)
 	{
-		if (m_arguments.size() != RequiredArgsCount(m_command))
+		if (args.size() != RequiredArgsCount(cmd))
 		{
 			return Error::InvalidArgumentsCount;
 		}
@@ -63,7 +64,7 @@ CarControllerCli::Error CarControllerCli::ExecCommand()const
 
 	try
 	{
-		switch (m_command)
+		switch (cmd)
 		{
 			case Command::None:
 				return Error::Success;
@@ -74,14 +75,14 @@ CarControllerCli::Error CarControllerCli::ExecCommand()const
 			case Command::EngineOff:
 				return EngineOff();
 			case Command::SetGear:
-				return SetGear(stoi(m_arguments[0]));
+				return SetGear(stoi(args[0]));
 			case Command::SetSpeed:
-				return SetSpeed(stoi(m_arguments[0]));
+				return SetSpeed(stoi(args[0]));
 			default:
 				return Error::InvalidCommand;
 		}
 	}
-	catch (std::exception e)
+	catch (std::exception const& e)
 	{
 		return Error::InvalidArgument;
 	}

@@ -14,17 +14,16 @@ public:
 	{
 	}
 
-	bool RunCycle()
+	bool RunCycle()const
 	{
-		m_command = Command::None;
-		m_arguments.clear();
-		PromptCommand();
-		if (m_command == Command::Quit)
+		std::vector<std::string> args;
+		const Command cmd = PromptCommand(args);
+		if (cmd == Command::Quit)
 		{
 			return false;
 		}
 
-		const Error error = ExecCommand();
+		const Error error = ExecCommand(cmd, args);
 		if (error != Error::Success)
 		{
 			m_error << "Error: " << ErrorMessage(error) << '\n';
@@ -61,8 +60,6 @@ private:
 	Car & m_car;
 	std::istream & m_input;
 	std::ostream & m_output, & m_error;
-	Command m_command;
-	std::vector<std::string> m_arguments;
 
 	constexpr static size_t RequiredArgsCount(Command cmd)
 	{
@@ -101,9 +98,9 @@ private:
 		}
 	}
 
-	void PromptCommand();
+	Command PromptCommand(std::vector<std::string> & args)const;
 
-	Error ExecCommand()const;
+	Error ExecCommand(Command cmd, std::vector<std::string> const& args)const;
 
 	Error Info()const;
 
