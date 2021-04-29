@@ -15,7 +15,7 @@ CCircle *CCircle::ReadFromStream(std::istream & input)
 	input >> m_center >> m_radius;
 	input >> std::hex >> m_outlineColor >> m_fillColor;
 
-	if (!input)
+	if (!input || m_radius < 0)
 	{
 		throw std::invalid_argument(CIRCLE_FORMAT);
 	}

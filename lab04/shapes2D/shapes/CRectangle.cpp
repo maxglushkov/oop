@@ -16,7 +16,7 @@ CRectangle *CRectangle::ReadFromStream(std::istream & input)
 	input >> m_topLeft >> m_width >> m_height;
 	input >> std::hex >> m_outlineColor >> m_fillColor;
 
-	if (!input)
+	if (!input || m_width < 0 || m_height < 0)
 	{
 		throw std::invalid_argument(RECTANGLE_FORMAT);
 	}
