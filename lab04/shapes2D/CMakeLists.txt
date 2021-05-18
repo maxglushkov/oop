@@ -9,9 +9,14 @@ add_subdirectory(tests)
 
 add_subdirectory(shapes)
 
+add_library(
+	testable OBJECT
+	shapes-array.cpp
+)
+
 add_executable(
 	shapes2D
 	main.cpp
-	shapes-array.cpp
 	$<TARGET_OBJECTS:shapes>
+	$<TARGET_OBJECTS:testable>
 )

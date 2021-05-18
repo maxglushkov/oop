@@ -5,7 +5,7 @@ using std::cerr, std::cout;
 
 void PrintUsage(const char *programName);
 
-void PrintShape(const IShape *shape);
+void PrintShape(IShape const& shape);
 
 int main(int argc, const char *argv[])
 {
@@ -20,22 +20,24 @@ int main(int argc, const char *argv[])
 	{
 		ReadShapes(std::cin, shapes);
 	}
-	catch (std::invalid_argument e)
+	catch (std::exception const& e)
 	{
 		cerr << "Error: " << e.what() << '\n';
 		return 1;
 	}
 
 	cout << std::hex;
-	if (auto maxAreaShape = FindShapeWithMaxArea(shapes))
+	auto iter = FindShapeWithMaxArea(shapes);
+	if (iter != shapes.end())
 	{
 		cout << "Shape with max area is ";
-		PrintShape(maxAreaShape);
+		PrintShape(**iter);
 	}
-	if (auto minPerimeterShape = FindShapeWithMinPerimeter(shapes))
+	iter = FindShapeWithMinPerimeter(shapes);
+	if (iter != shapes.end())
 	{
 		cout << "Shape with min perimeter is ";
-		PrintShape(minPerimeterShape);
+		PrintShape(**iter);
 	}
 	return 0;
 }
@@ -51,13 +53,13 @@ void PrintUsage(const char *programName)
 	cerr << "Prints information about the shapes with max area and min perimeter.\n";
 }
 
-void PrintShape(const IShape *shape)
+void PrintShape(IShape const& shape)
 {
-	cout << shape->ToString();
-	cout << "\n\tArea: " << shape->GetArea();
-	cout << "\n\tPerimeter: " << shape->GetPerimeter();
-	cout << "\n\tOutline color: " << shape->GetOutlineColor();
-	if (auto solidShape = dynamic_cast<const ISolidShape *>(shape))
+	cout << shape.ToString();
+	cout << "\n\tArea: " << shape.GetArea();
+	cout << "\n\tPerimeter: " << shape.GetPerimeter();
+	cout << "\n\tOutline color: " << shape.GetOutlineColor();
+	if (auto solidShape = dynamic_cast<const ISolidShape *>(&shape))
 	{
 		cout << "\n\tFill color: " << solidShape->GetFillColor();
 	}

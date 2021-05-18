@@ -8,7 +8,9 @@ add_executable(
 	CPoint.cpp
 	CRectangle.cpp
 	CTriangle.cpp
+	shapes-array.cpp
 	$<TARGET_OBJECTS:shapes>
+	$<TARGET_OBJECTS:testable>
 )
 
 include(Catch)

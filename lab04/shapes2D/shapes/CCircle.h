@@ -5,6 +5,18 @@
 class CCircle: public ISolidShape
 {
 public:
+	CCircle(CPoint const& center, double radius, uint32_t outlineColor, uint32_t fillColor)
+		:m_center(center)
+		,m_radius(radius)
+		,m_outlineColor(outlineColor)
+		,m_fillColor(fillColor)
+	{
+		if (radius < 0)
+		{
+			throw std::invalid_argument("radius cannot be less then zero");
+		}
+	}
+
 	double GetArea()const
 	{
 		return M_PI * m_radius * m_radius;
@@ -36,8 +48,6 @@ public:
 	{
 		return m_radius;
 	}
-
-	CCircle *ReadFromStream(std::istream & input);
 
 private:
 	CPoint m_center;

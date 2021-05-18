@@ -5,6 +5,13 @@
 class CLineSegment: public IShape
 {
 public:
+	CLineSegment(CPoint const& start, CPoint const& end, uint32_t color)
+		:m_start(start)
+		,m_end(end)
+		,m_color(color)
+	{
+	}
+
 	double GetArea()const
 	{
 		return 0;
@@ -31,8 +38,6 @@ public:
 	{
 		return m_end;
 	}
-
-	CLineSegment *ReadFromStream(std::istream & input);
 
 private:
 	CPoint m_start, m_end;

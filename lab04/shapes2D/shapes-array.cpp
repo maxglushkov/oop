@@ -1,69 +1,68 @@
-#include <cfloat>
-#include <sstream>
 #include "shapes-array.h"
 #include "shapes/CCircle.h"
 #include "shapes/CLineSegment.h"
 #include "shapes/CRectangle.h"
 #include "shapes/CTriangle.h"
+using std::invalid_argument;
 
 void ReadShapes(std::istream & input, std::vector<IShapePtr> & shapes)
 {
+	input >> std::hex;
+
 	std::string shapeName;
 	while (input >> shapeName)
 	{
 		IShape *shape;
 		if (shapeName == "segment")
 		{
-			shape = (new CLineSegment)->ReadFromStream(input);
+			CPoint start, end;
+			uint32_t color;
+			input >> start >> end >> color;
+			if (!input)
+			{
+				throw invalid_argument("segment format: <start x> <start y> <end x> <end y> <color>");
+			}
+			shape = new CLineSegment(start, end, color);
 		}
 		else if (shapeName == "triangle")
 		{
-			shape = (new CTriangle)->ReadFromStream(input);
+			CPoint vertex1, vertex2, vertex3;
+			uint32_t outlineColor, fillColor;
+			input >> vertex1 >> vertex2 >> vertex3 >> outlineColor >> fillColor;
+			if (!input)
+			{
+				throw invalid_argument("triangle format: <1 vertex x> <1 vertex y> <2 vertex x> <2 vertex y> <3 vertex x> <3 vertex y> <outline color> <fill color>");
+			}
+			shape = new CTriangle(vertex1, vertex2, vertex3, outlineColor, fillColor);
 		}
 		else if (shapeName == "rectangle")
 		{
-			shape = (new CRectangle)->ReadFromStream(input);
+			CPoint topLeft;
+			double width, height;
+			uint32_t outlineColor, fillColor;
+			input >> topLeft >> width >> height >> outlineColor >> fillColor;
+			if (!input)
+			{
+				throw invalid_argument("rectangle format: <left> <top> <width> <height> <outline color> <fill color>");
+			}
+			shape = new CRectangle(topLeft, width, height, outlineColor, fillColor);
 		}
 		else if (shapeName == "circle")
 		{
-			shape = (new CCircle)->ReadFromStream(input);
+			CPoint center;
+			double radius;
+			uint32_t outlineColor, fillColor;
+			input >> center >> radius >> outlineColor >> fillColor;
+			if (!input)
+			{
+				throw invalid_argument("circle format: <center x> <center y> <radius> <outline color> <fill color>");
+			}
+			shape = new CCircle(center, radius, outlineColor, fillColor);
 		}
 		else
 		{
-			throw std::invalid_argument("unknown shape");
+			throw invalid_argument("unknown shape");
 		}
 		shapes.push_back(IShapePtr(shape));
 	}
-}
-
-const IShape *FindShapeWithMaxArea(std::vector<IShapePtr> const& shapes)
-{
-	const IShape *maxAreaShape = nullptr;
-	double maxArea = 0.0;
-	for (auto const& shape: shapes)
-	{
-		const double area = shape->GetArea();
-		if (area >= maxArea)
-		{
-			maxArea = area;
-			maxAreaShape = shape.get();
-		}
-	}
-	return maxAreaShape;
-}
-
-const IShape *FindShapeWithMinPerimeter(std::vector<IShapePtr> const& shapes)
-{
-	const IShape *minPerimeterShape = nullptr;
-	double minPerimeter = DBL_MAX;
-	for (auto const& shape: shapes)
-	{
-		const double perimeter = shape->GetPerimeter();
-		if (perimeter <= minPerimeter)
-		{
-			minPerimeter = perimeter;
-			minPerimeterShape = shape.get();
-		}
-	}
-	return minPerimeterShape;
 }

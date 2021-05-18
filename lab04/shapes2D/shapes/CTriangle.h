@@ -5,6 +5,14 @@
 class CTriangle: public ISolidShape
 {
 public:
+	CTriangle(CPoint const& vertex1, CPoint const& vertex2, CPoint const& vertex3,
+	          uint32_t outlineColor, uint32_t fillColor)
+		:m_vertices{vertex1, vertex2, vertex3}
+		,m_outlineColor(outlineColor)
+		,m_fillColor(fillColor)
+	{
+	}
+
 	double GetArea()const
 	{
 		const double a = m_vertices[0].Distance(m_vertices[1]);
@@ -47,8 +55,6 @@ public:
 	{
 		return m_vertices[2];
 	}
-
-	CTriangle *ReadFromStream(std::istream & input);
 
 private:
 	CPoint m_vertices[3];
