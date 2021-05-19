@@ -3,9 +3,10 @@
 #include "CUrlParsingError.h"
 using std::string, std::string_view;
 
-constexpr char HTTP_SCHEME[] = "http";
-constexpr char HTTPS_SCHEME[] = "https";
-constexpr uint32_t MAX_PORT = 0xffff;
+constexpr string_view HTTP_SCHEME = "http";
+constexpr string_view HTTPS_SCHEME = "https";
+constexpr uint32_t MIN_PORT = 1;
+constexpr uint32_t MAX_PORT = 65535;
 
 CHttpUrl::Protocol ParseScheme(string_view const& scheme);
 
@@ -20,7 +21,7 @@ CHttpUrl::CHttpUrl(std::string const& url)
 	}
 	m_protocol = ParseScheme(string_view(url.data(), schemeEndPos));
 
-	const string::size_type domainBeginPos = schemeEndPos + sizeof SCHEME_SEPARATOR - 1;
+	const string::size_type domainBeginPos = schemeEndPos + SCHEME_SEPARATOR.size();
 	const string::size_type documentBeginPos = std::min(url.find(DOCUMENT_SEPARATOR, domainBeginPos), url.length());
 	m_document = NormalizeDocumentPart(string_view(url.data() + documentBeginPos, url.length() - documentBeginPos));
 
@@ -79,11 +80,15 @@ std::ostream & operator <<(std::ostream & output, CHttpUrl::Protocol protocol)
 
 CHttpUrl::Protocol ParseScheme(string_view const& scheme)
 {
-	if (scheme == HTTP_SCHEME)
+	const auto mixedAndLowerCaseEqual = [](char mixedCase, char lowerCase)
+	{
+		return tolower(mixedCase) == lowerCase;
+	};
+	if (std::equal(scheme.begin(), scheme.end(), HTTP_SCHEME.begin(), HTTP_SCHEME.end(), mixedAndLowerCaseEqual))
 	{
 		return CHttpUrl::Protocol::HTTP;
 	}
-	if (scheme == HTTPS_SCHEME)
+	if (std::equal(scheme.begin(), scheme.end(), HTTPS_SCHEME.begin(), HTTPS_SCHEME.end(), mixedAndLowerCaseEqual))
 	{
 		return CHttpUrl::Protocol::HTTPS;
 	}
@@ -115,5 +120,9 @@ unsigned short ParsePort(string_view const& port)
 	}
 	while (++iter != port.end());
 
+	if (number < MIN_PORT)
+	{
+		throw CUrlParsingError("port number should not be less then 1");
+	}
 	return number;
 }

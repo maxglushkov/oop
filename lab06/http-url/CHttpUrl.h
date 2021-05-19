@@ -84,7 +84,7 @@ public:
 	}
 
 private:
-	constexpr static char SCHEME_SEPARATOR[] = "://";
+	constexpr static std::string_view SCHEME_SEPARATOR = "://";
 	constexpr static char PORT_SEPARATOR = ':';
 	constexpr static char DOCUMENT_SEPARATOR = '/';
 
@@ -95,7 +95,11 @@ private:
 	static std::string NormalizeDocumentPart(std::string_view const& document)
 	{
 		std::string normalized;
-		if (document.empty() ? true : document[0] != DOCUMENT_SEPARATOR)
+		if (document.empty())
+		{
+			normalized.push_back(DOCUMENT_SEPARATOR);
+		}
+		else if (document[0] != DOCUMENT_SEPARATOR)
 		{
 			normalized.push_back(DOCUMENT_SEPARATOR);
 		}

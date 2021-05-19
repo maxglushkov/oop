@@ -80,7 +80,8 @@ TEST_CASE("Checking whether URLs can be composed from parts")
 
 TEST_CASE("Checking how invalid URLs are processed")
 {
-	REQUIRE_THROWS(CHttpUrl("ftp://localhost/download"));
+	REQUIRE_THROWS(CHttpUrl("htt://localhost/download"));
+	REQUIRE_THROWS(CHttpUrl("httpd://localhost/download"));
 	REQUIRE_NOTHROW(CHttpUrl("http://localhost/download"));
 
 	REQUIRE_THROWS(CHttpUrl("http:/example.com"));
@@ -88,13 +89,14 @@ TEST_CASE("Checking how invalid URLs are processed")
 	REQUIRE_NOTHROW(CHttpUrl("http://example.com"));
 
 	REQUIRE_THROWS(CHttpUrl("http://example.com:"));
-	REQUIRE_THROWS(CHttpUrl("http://example.com:-0"));
-	REQUIRE_THROWS(CHttpUrl("http://example.com:+0"));
+	REQUIRE_THROWS(CHttpUrl("http://example.com:-1"));
+	REQUIRE_THROWS(CHttpUrl("http://example.com:+1"));
 	REQUIRE_THROWS(CHttpUrl("http://example.com:0x16"));
-	REQUIRE_NOTHROW(CHttpUrl("http://example.com:0"));
+	REQUIRE_NOTHROW(CHttpUrl("HttP://example.com:1"));
 
+	REQUIRE_THROWS(CHttpUrl("https://example.com:0"));
 	REQUIRE_THROWS(CHttpUrl("https://example.com:65536"));
-	REQUIRE_NOTHROW(CHttpUrl("https://example.com:65535"));
+	REQUIRE_NOTHROW(CHttpUrl("htTpS://example.com:65535"));
 
 	REQUIRE_THROWS(CHttpUrl("https://root:toor@localhost/"));
 	REQUIRE_NOTHROW(CHttpUrl("https://root:toor@localhost:443/"));
