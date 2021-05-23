@@ -8,20 +8,34 @@ TEST_CASE("Checking empty string list")
 	REQUIRE(list.Size() == 0);
 	REQUIRE(list.IsEmpty());
 	REQUIRE(list.begin() == list.end());
-	REQUIRE(list.cbegin() == list.cend());
+	REQUIRE(list.begin() == list.cend());
+	REQUIRE(list.cbegin() == list.end());
 	REQUIRE(list.rbegin() == list.rend());
-	REQUIRE(list.crbegin() == list.crend());
+	REQUIRE(list.rbegin() == list.crend());
+	REQUIRE(list.crbegin() == list.rend());
 	for ([[maybe_unused]] string & str: list)
 	{
 		REQUIRE(false);
 	}
+
+	CStringList copied(list);
+	REQUIRE(copied.IsEmpty());
+	REQUIRE(copied.begin() == copied.end());
+	REQUIRE(copied.begin() != list.begin());
+	REQUIRE(list.begin() == list.end());
+
+	CStringList moved(std::move(list));
+	REQUIRE(moved.IsEmpty());
+	REQUIRE(moved.begin() == moved.end());
+	REQUIRE(moved.begin() != list.begin());
+	REQUIRE(list.begin() == list.end());
 }
 
 TEST_CASE("Appending strings to the ends and clearing the list")
 {
 	CStringList list;
 	const auto endIt = list.cend();
-	const auto rendIt = list.crend();
+	const auto rbeginIt = list.crbegin();
 
 	list.PushBack("First");
 	list.PushBack("Second");
@@ -30,8 +44,8 @@ TEST_CASE("Appending strings to the ends and clearing the list")
 	REQUIRE(list.Size() == 3);
 	REQUIRE(list.cbegin() != endIt);
 	REQUIRE(list.cend() == endIt);
-	REQUIRE(list.crbegin() != rendIt);
-	REQUIRE(list.crend() == rendIt);
+	REQUIRE(list.crbegin() == rbeginIt);
+	REQUIRE(list.crend() != rbeginIt);
 
 	auto it = endIt;
 	REQUIRE_THROWS(*it);
@@ -45,8 +59,8 @@ TEST_CASE("Appending strings to the ends and clearing the list")
 	REQUIRE(list.IsEmpty());
 	REQUIRE(list.cbegin() == endIt);
 	REQUIRE(list.cend() == endIt);
-	REQUIRE(list.crbegin() == rendIt);
-	REQUIRE(list.crend() == rendIt);
+	REQUIRE(list.crbegin() == rbeginIt);
+	REQUIRE(list.crend() == rbeginIt);
 
 	list.PushFront("First");
 	list.PushBack("Second");
@@ -55,16 +69,16 @@ TEST_CASE("Appending strings to the ends and clearing the list")
 	REQUIRE(list.Size() == 3);
 	REQUIRE(list.cbegin() != endIt);
 	REQUIRE(list.cend() == endIt);
-	REQUIRE(list.crbegin() != rendIt);
-	REQUIRE(list.crend() == rendIt);
+	REQUIRE(list.crbegin() == rbeginIt);
+	REQUIRE(list.crend() != rbeginIt);
 
-	it = rendIt;
-	REQUIRE_THROWS(*it--);
-	REQUIRE(*it-- == "Zeroth");
-	REQUIRE(*it-- == "First");
-	REQUIRE_THROWS(it--);
-	REQUIRE(*it == "Second");
-	REQUIRE(it == list.crbegin());
+	auto rit = list.crend();
+	REQUIRE_THROWS(*rit);
+	REQUIRE(*--rit == "Zeroth");
+	REQUIRE(*--rit == "First");
+	REQUIRE(*--rit == "Second");
+	REQUIRE_THROWS(--rit);
+	REQUIRE(rit == list.crbegin());
 }
 
 TEST_CASE("Inserting and erasing strings")
@@ -82,28 +96,27 @@ TEST_CASE("Inserting and erasing strings")
 	REQUIRE_THROWS(*it);
 	REQUIRE_THROWS(it++);
 	REQUIRE(it == list.end());
-	REQUIRE_THROWS(list.Erase(std::move(it)));
+	REQUIRE_THROWS(list.Erase(it));
 	REQUIRE(list.Size() == 2);
 
-	it = list.Insert(list.rbegin(), "Third");
-	REQUIRE(*it == "Third");
-	REQUIRE(*++it == "Second");
+	it = list.Insert(it, "Third");
+	REQUIRE(*it-- == "Third");
+	REQUIRE(*it-- == "Second");
+	REQUIRE(*it == "First");
 	REQUIRE(list.Size() == 3);
 
-	it = list.Erase(std::move(it));
-	REQUIRE(*it == "First");
-	REQUIRE(++it == list.rend());
-	REQUIRE_THROWS(*it);
-	REQUIRE_THROWS(++it);
-	REQUIRE(it == list.rend());
+	it = list.Erase(it);
+	REQUIRE(*it == "Second");
+	REQUIRE_THROWS(it--);
+	REQUIRE(it == list.begin());
 	REQUIRE(list.Size() == 2);
 
-	it = list.Erase(list.begin());
+	it = list.Erase(it);
 	REQUIRE(it == list.begin());
 	REQUIRE(*it == "Third");
 	REQUIRE(list.Size() == 1);
 
-	it = list.Erase(std::move(it));
+	it = list.Erase(it);
 	REQUIRE(it == list.begin());
 	REQUIRE(it == list.end());
 	REQUIRE(list.IsEmpty());
@@ -142,4 +155,75 @@ TEST_CASE("Checking whether STL algorithms work on string list")
 	}
 
 	REQUIRE(std::equal(list.cbegin(), list.cend(), originalList.cbegin()));
+}
+
+TEST_CASE("Checking whether string lists can be copied and moved")
+{
+	CStringList original;
+	original.PushBack("First");
+	original.PushBack("Second");
+	original.PushBack("Third");
+	REQUIRE(original.Size() == 3);
+
+	std::array<const string *, 3> addresses;
+	auto addrIt = addresses.begin();
+	for (string const& str: original)
+	{
+		*addrIt++ = &str;
+	}
+
+	CStringList copied(original);
+	REQUIRE(original.Size() == 3);
+	REQUIRE(copied.Size() == 3);
+	for (auto it1 = copied.begin(), it2 = original.begin(); it1 != copied.end(); ++it1, ++it2)
+	{
+		REQUIRE(it1 != it2);
+		REQUIRE(*it1 == *it2);
+		REQUIRE(&*it1 != &*it2);
+	}
+	for (auto it1 = copied.rbegin(), it2 = original.rbegin(); it1 != copied.rend(); ++it1, ++it2)
+	{
+		REQUIRE(it1 != it2);
+		REQUIRE(*it1 == *it2);
+		REQUIRE(&*it1 != &*it2);
+	}
+
+	CStringList moved(std::move(original));
+	REQUIRE(original.IsEmpty());
+	REQUIRE(original.begin() == original.end());
+	REQUIRE(moved.Size() == 3);
+	addrIt = addresses.begin();
+	for (string const& str: moved)
+	{
+		REQUIRE(*addrIt++ == &str);
+	}
+
+	original.PushBack("");
+	REQUIRE(original.Size() == 1);
+
+	original = copied;
+	REQUIRE(copied.Size() == 3);
+	REQUIRE(original.Size() == 3);
+	for (auto it1 = original.begin(), it2 = copied.begin(); it1 != original.end(); ++it1, ++it2)
+	{
+		REQUIRE(it1 != it2);
+		REQUIRE(*it1 == *it2);
+		REQUIRE(&*it1 != &*it2);
+	}
+	for (auto it1 = original.rbegin(), it2 = copied.rbegin(); it1 != original.rend(); ++it1, ++it2)
+	{
+		REQUIRE(it1 != it2);
+		REQUIRE(*it1 == *it2);
+		REQUIRE(&*it1 != &*it2);
+	}
+
+	original = std::move(moved);
+	REQUIRE(moved.IsEmpty());
+	REQUIRE(moved.begin() == moved.end());
+	REQUIRE(original.Size() == 3);
+	addrIt = addresses.begin();
+	for (string const& str: moved)
+	{
+		REQUIRE(*addrIt++ == &str);
+	}
 }

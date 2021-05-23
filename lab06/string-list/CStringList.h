@@ -5,54 +5,15 @@ class CStringList
 {
 	struct BasicItem
 	{
-		enum IteratingDirection
-		{
-			Forward = 0,
-			Backward = 1
-		};
-
-		BasicItem(IteratingDirection dir, BasicItem * prev, BasicItem * next)
-		{
-			Prev(dir) = prev;
-			Next(dir) = next;
-		}
-
-		BasicItem *& Next(IteratingDirection dir)
-		{
-			return m_links[dir ^ Forward];
-		}
-
-		const BasicItem * Next(IteratingDirection dir)const
-		{
-			return m_links[dir ^ Forward];
-		}
-
-		BasicItem *& Prev(IteratingDirection dir)
-		{
-			return m_links[dir ^ Backward];
-		}
-
-		const BasicItem * Prev(IteratingDirection dir)const
-		{
-			return m_links[dir ^ Backward];
-		}
-
-	private:
-		BasicItem * m_links[2];
+		BasicItem *m_prev, *m_next;
 	};
 
 	struct Item: public BasicItem
 	{
 		std::string m_value;
-
-		Item(IteratingDirection dir, BasicItem * prev, BasicItem * next, std::string value)
-			:BasicItem(dir, prev, next)
-			,m_value(value)
-		{
-		}
 	};
 
-	template<typename T, typename BasicItem, typename ItemPointer>
+	template<typename T, typename BasicItem, typename Item>
 	class CIterator
 	{
 	public:
@@ -64,59 +25,59 @@ class CStringList
 
 		CIterator & operator ++()
 		{
-			if (BasicItem *const nextItem = m_item->Next(m_dir))
+			if (BasicItem *const nextItem = m_item->m_next)
 			{
 				m_item = nextItem;
 				return *this;
 			}
-			NotIncrementableIterator();
+			ThrowNotIncrementableIterator();
 		}
 
 		CIterator operator ++(int)
 		{
-			if (BasicItem *const nextItem = m_item->Next(m_dir))
+			if (BasicItem *const nextItem = m_item->m_next)
 			{
 				CIterator saved = *this;
 				m_item = nextItem;
 				return saved;
 			}
-			NotIncrementableIterator();
+			ThrowNotIncrementableIterator();
 		}
 
 		CIterator & operator --()
 		{
-			if (BasicItem *const prevItem = m_item->Prev(m_dir))
+			if (BasicItem *const prevItem = m_item->m_prev)
 			{
-				if (prevItem->Prev(m_dir))
+				if (prevItem->m_prev)
 				{
 					m_item = prevItem;
 					return *this;
 				}
 			}
-			NotDecrementableIterator();
+			ThrowNotDecrementableIterator();
 		}
 
 		CIterator operator --(int)
 		{
-			if (BasicItem *const prevItem = m_item->Prev(m_dir))
+			if (BasicItem *const prevItem = m_item->m_prev)
 			{
-				if (prevItem->Prev(m_dir))
+				if (prevItem->m_prev)
 				{
 					CIterator saved = *this;
 					m_item = prevItem;
 					return saved;
 				}
 			}
-			NotDecrementableIterator();
+			ThrowNotDecrementableIterator();
 		}
 
 		reference operator *()const
 		{
-			if (m_item->Next(BasicItem::Forward) && m_item->Prev(BasicItem::Forward))
+			if (m_item->m_prev && m_item->m_next)
 			{
-				return ItemPointer(m_item)->m_value;
+				return static_cast<Item *>(m_item)->m_value;
 			}
-			NotDereferencableIterator();
+			ThrowNotDereferencableIterator();
 		}
 
 		pointer operator ->()const
@@ -124,53 +85,76 @@ class CStringList
 			return &**this;
 		}
 
-		bool operator ==(CIterator const& other)const
+		friend bool operator ==(CIterator const& lhs, CIterator const& rhs)
 		{
-			return m_dir == other.m_dir && m_item == other.m_item;
+			return lhs.m_item == rhs.m_item;
 		}
 
-		bool operator !=(CIterator const& other)const
+		friend bool operator !=(CIterator const& lhs, CIterator const& rhs)
 		{
-			return !(*this == other);
+			return !(lhs == rhs);
+		}
+
+		operator CIterator<const T, const BasicItem, const Item>()const
+		{
+			return m_item;
 		}
 
 	private:
 		friend class CStringList;
 
-		typename BasicItem::IteratingDirection m_dir;
-		BasicItem * m_item;
+		BasicItem *m_item;
 
-		CIterator(BasicItem * item, typename BasicItem::IteratingDirection dir)
-			:m_dir(dir)
-			,m_item(item)
+		CIterator(BasicItem *item)
+			:m_item(item)
 		{
 		}
 	};
 
 public:
-	using Iterator = CIterator<std::string, BasicItem, Item *>;
-	using ConstIterator = CIterator<const std::string, const BasicItem, const Item *>;
+	using Iterator = CIterator<std::string, BasicItem, Item>;
+	using ConstIterator = CIterator<const std::string, const BasicItem, const Item>;
 
 	CStringList()
-		:m_head(BasicItem::Forward, nullptr, &m_tail)
-		,m_tail(BasicItem::Forward, &m_head, nullptr)
-		,m_size(0)
 	{
+		Initialize();
+	}
+
+	CStringList(CStringList const& other)
+	{
+		Initialize(other);
+	}
+
+	CStringList(CStringList && other)
+	{
+		Initialize(std::move(other));
 	}
 
 	~CStringList()
 	{
-		Clear();
+		Cleanup();
+	}
+
+	CStringList & operator =(CStringList const& other)
+	{
+		return *this = CStringList(other);
+	}
+
+	CStringList & operator =(CStringList && other)
+	{
+		Cleanup();
+		Initialize(std::move(other));
+		return *this;
 	}
 
 	void PushFront(std::string str)
 	{
-		Insert(rend(), str);
+		Insert(begin(), std::move(str));
 	}
 
 	void PushBack(std::string str)
 	{
-		Insert(end(), str);
+		Insert(end(), std::move(str));
 	}
 
 	size_t Size()const
@@ -183,20 +167,24 @@ public:
 		return m_size == 0;
 	}
 
-	void Clear();
+	void Clear()
+	{
+		Cleanup();
+		Initialize();
+	}
 
 	Iterator Insert(Iterator const& pos, std::string str);
 
-	Iterator Erase(Iterator && pos);
+	Iterator Erase(Iterator const& pos);
 
 	Iterator begin()
 	{
-		return Iterator(m_head.Next(BasicItem::Forward), BasicItem::Forward);
+		return m_head.m_next;
 	}
 
 	ConstIterator begin()const
 	{
-		return ConstIterator(m_head.Next(BasicItem::Forward), BasicItem::Forward);
+		return m_head.m_next;
 	}
 
 	ConstIterator cbegin()const
@@ -206,12 +194,12 @@ public:
 
 	Iterator end()
 	{
-		return Iterator(&m_tail, BasicItem::Forward);
+		return &m_tail;
 	}
 
 	ConstIterator end()const
 	{
-		return ConstIterator(&m_tail, BasicItem::Forward);
+		return &m_tail;
 	}
 
 	ConstIterator cend()const
@@ -219,32 +207,32 @@ public:
 		return end();
 	}
 
-	Iterator rbegin()
+	std::reverse_iterator<Iterator> rbegin()
 	{
-		return Iterator(m_tail.Next(BasicItem::Backward), BasicItem::Backward);
+		return std::make_reverse_iterator(end());
 	}
 
-	ConstIterator rbegin()const
+	std::reverse_iterator<ConstIterator> rbegin()const
 	{
-		return ConstIterator(m_tail.Next(BasicItem::Backward), BasicItem::Backward);
+		return std::make_reverse_iterator(end());
 	}
 
-	ConstIterator crbegin()const
+	std::reverse_iterator<ConstIterator> crbegin()const
 	{
 		return rbegin();
 	}
 
-	Iterator rend()
+	std::reverse_iterator<Iterator> rend()
 	{
-		return Iterator(&m_head, BasicItem::Backward);
+		return std::make_reverse_iterator(begin());
 	}
 
-	ConstIterator rend()const
+	std::reverse_iterator<ConstIterator> rend()const
 	{
-		return ConstIterator(&m_head, BasicItem::Backward);
+		return std::make_reverse_iterator(begin());
 	}
 
-	ConstIterator crend()const
+	std::reverse_iterator<ConstIterator> crend()const
 	{
 		return rend();
 	}
@@ -253,9 +241,30 @@ private:
 	BasicItem m_head, m_tail;
 	size_t m_size;
 
-	[[noreturn]] static void NotIncrementableIterator();
+	[[noreturn]] static void ThrowNotIncrementableIterator();
 
-	[[noreturn]] static void NotDecrementableIterator();
+	[[noreturn]] static void ThrowNotDecrementableIterator();
 
-	[[noreturn]] static void NotDereferencableIterator();
+	[[noreturn]] static void ThrowNotDereferencableIterator();
+
+	void Initialize()
+	{
+		m_head = {nullptr, &m_tail};
+		m_tail = {&m_head, nullptr};
+		m_size = 0;
+	}
+
+	void Initialize(CStringList const& source);
+
+	void Initialize(CStringList && source)
+	{
+		m_head.m_prev = nullptr;
+		(m_head.m_next = source.m_head.m_next)->m_prev = &m_head;
+		(m_tail.m_prev = source.m_tail.m_prev)->m_next = &m_tail;
+		m_tail.m_next = nullptr;
+		m_size = source.m_size;
+		source.Initialize();
+	}
+
+	void Cleanup();
 };
