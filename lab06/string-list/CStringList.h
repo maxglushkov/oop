@@ -137,6 +137,10 @@ public:
 
 	CStringList & operator =(CStringList const& other)
 	{
+		if (this == &other)
+		{
+			return *this;
+		}
 		return *this = CStringList(other);
 	}
 
