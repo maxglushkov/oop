@@ -12,8 +12,13 @@ public:
 	{
 	}
 
+	Trie(Trie && other)
+		:m_root(other.m_root)
+	{
+		new (&other) Trie();
+	}
+
 	Trie(const Trie &) = delete;
-	Trie(Trie &&) = default;
 
 	~Trie()
 	{
@@ -21,6 +26,9 @@ public:
 			delete node;
 		});
 	}
+
+	Trie & operator =(Trie &&) = delete;
+	Trie & operator =(const Trie &) = delete;
 
 	static Trie FromMapKeys(std::map<std::string, std::string> const& map);
 
