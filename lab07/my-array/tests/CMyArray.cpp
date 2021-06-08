@@ -7,6 +7,7 @@ void TestMyArray(std::array<T, 3> const& testData)
 {
 	CMyArray<T> array;
 	REQUIRE(array.Size() == 0);
+	REQUIRE(array.Capacity() == 0);
 	REQUIRE_THROWS(array[size_t(-1)]);
 	REQUIRE_THROWS(array[0]);
 
@@ -18,14 +19,17 @@ void TestMyArray(std::array<T, 3> const& testData)
 
 	array.PushBack(testData[0]);
 	REQUIRE(array.Size() == 1);
+	REQUIRE(array.Capacity() == 1);
 	REQUIRE(*it++ == testData[0]);
 
 	array.PushBack(testData[1]);
 	REQUIRE(array.Size() == 2);
+	REQUIRE(array.Capacity() == 2);
 	REQUIRE(*it++ == testData[1]);
 
 	array.Resize(3);
 	REQUIRE(array.Size() == 3);
+	REQUIRE(array.Capacity() == 3);
 	REQUIRE_THROWS(array[size_t(-1)]);
 	REQUIRE(array[0] == testData[0]);
 	REQUIRE(array[1] == testData[1]);
@@ -55,6 +59,7 @@ void TestMyArray(std::array<T, 3> const& testData)
 
 	array.Resize(3);
 	REQUIRE(array.Size() == 3);
+	REQUIRE(array.Capacity() == 3);
 	REQUIRE(*--rit == testData[0]);
 	REQUIRE(*--rit == testData[1]);
 	REQUIRE(*--rit == testData[1]);
@@ -62,6 +67,7 @@ void TestMyArray(std::array<T, 3> const& testData)
 
 	array.Resize(1);
 	REQUIRE(array.Size() == 1);
+	REQUIRE(array.Capacity() == 3);
 	const T *const address = &array[0];
 	REQUIRE(array[0] == testData[0]);
 	REQUIRE_THROWS(array[1]);
@@ -73,7 +79,9 @@ void TestMyArray(std::array<T, 3> const& testData)
 
 	CMyArray<T> copied(array);
 	REQUIRE(array.Size() == 1);
+	REQUIRE(array.Capacity() == 3);
 	REQUIRE(copied.Size() == 1);
+	REQUIRE(copied.Capacity() == 3);
 	REQUIRE(copied[0] == array[0]);
 	REQUIRE(&copied[0] != address);
 
@@ -88,13 +96,16 @@ void TestMyArray(std::array<T, 3> const& testData)
 
 	CMyArray<T> moved(std::move(array));
 	REQUIRE(array.Size() == 0);
+	REQUIRE(array.Capacity() == 0);
 	REQUIRE(moved.Size() == 1);
+	REQUIRE(moved.Capacity() == 3);
 	REQUIRE(&moved[0] == address);
 	REQUIRE(it == array.cbegin());
 	REQUIRE(it != moved.cbegin());
 
 	array.PushBack(testData[2]);
 	REQUIRE(array.Size() == 1);
+	REQUIRE(array.Capacity() == 1);
 	REQUIRE(it[0] == testData[2]);
 	REQUIRE(it - array.end() == -1);
 	REQUIRE(it - array.begin() == 0);
@@ -102,7 +113,9 @@ void TestMyArray(std::array<T, 3> const& testData)
 
 	array = copied;
 	REQUIRE(copied.Size() == 1);
+	REQUIRE(copied.Capacity() == 3);
 	REQUIRE(array.Size() == 1);
+	REQUIRE(array.Capacity() == 3);
 	REQUIRE(array[0] == copied[0]);
 	REQUIRE(&array[0] != &copied[0]);
 	REQUIRE_THROWS(rit < copied.crbegin());
@@ -112,7 +125,9 @@ void TestMyArray(std::array<T, 3> const& testData)
 
 	array = std::move(moved);
 	REQUIRE(moved.Size() == 0);
+	REQUIRE(moved.Capacity() == 0);
 	REQUIRE(array.Size() == 1);
+	REQUIRE(array.Capacity() == 3);
 	REQUIRE(&array[0] == address);
 	REQUIRE_THROWS(it <= moved.cbegin());
 	REQUIRE_THROWS(it >= moved.cbegin());
@@ -121,6 +136,7 @@ void TestMyArray(std::array<T, 3> const& testData)
 
 	array.Clear();
 	REQUIRE(array.Size() == 0);
+	REQUIRE(array.Capacity() == 3);
 }
 
 TEST_CASE("Checking CMyArray<std::string>")

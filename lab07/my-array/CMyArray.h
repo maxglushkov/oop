@@ -1,5 +1,5 @@
 #pragma once
-#include <algorithm>
+#include <cstring>
 #include <stdexcept>
 
 template<typename T>
@@ -146,96 +146,89 @@ public:
 	typedef CIterator<CMyArray, T> Iterator;
 	typedef CIterator<const CMyArray, const T> ConstIterator;
 
-	CMyArray()
-		:m_data(nullptr)
-		,m_size(0)
+	explicit CMyArray(size_t capacity = 0)
 	{
-	}
+		if (!capacity)
+		{
+			memset(this, 0, sizeof(CMyArray));
+			return;
+		}
 
-	CMyArray(CMyArray const& other)
-		:m_data(new T[other.m_size])
-		,m_size(other.m_size)
-	{
-		try
+		m_data = static_cast<T *>(malloc(capacity * sizeof(T)));
+		if (!m_data)
 		{
-			std::copy(other.cbegin(), other.cend(), begin());
+			throw std::bad_alloc();
 		}
-		catch (...)
-		{
-			delete[] m_data;
-			throw;
-		}
+		m_size = 0;
+		m_capacity = capacity;
 	}
 
 	CMyArray(CMyArray && other)
-		:m_data(other.m_data)
-		,m_size(other.m_size)
 	{
-		other.m_data = nullptr;
-		other.m_size = 0;
+		memcpy(this, &other, sizeof(CMyArray));
+		new (&other) CMyArray();
+	}
+
+	CMyArray(CMyArray const& other)
+		:CMyArray(other.Capacity())
+	{
+		try
+		{
+			for (T const& item: other)
+			{
+				new (m_data + m_size) T(item);
+				++m_size;
+			}
+		}
+		catch (...)
+		{
+			this->~CMyArray();
+			throw;
+		}
 	}
 
 	template<typename FromT>
 	CMyArray(CMyArray<FromT> const& other)
-		:m_data(new T[other.Size()])
-		,m_size(other.Size())
+		:CMyArray(other.Capacity())
 	{
 		try
 		{
-			std::transform(
-				other.cbegin(), other.cend(),
-				begin(),
-				[](FromT const& otherItem)
-				{
-					return static_cast<T>(otherItem);
-				}
-			);
+			for (FromT const& item: other)
+			{
+				new (m_data + m_size) T(static_cast<T>(item));
+				++m_size;
+			}
 		}
 		catch (...)
 		{
-			delete[] m_data;
+			this->~CMyArray();
 			throw;
 		}
 	}
 
-	explicit CMyArray(size_t size)
-		:m_data(new T[size])
-		,m_size(size)
-	{
-	}
-
 	~CMyArray()
 	{
-		delete[] m_data;
-	}
-
-	CMyArray & operator =(CMyArray const& other)
-	{
-		if (this == &other)
-		{
-			return *this;
-		}
-		return *this = CMyArray(other);
+		Destroy(0, m_size);
+		free(m_data);
 	}
 
 	CMyArray & operator =(CMyArray && other)
 	{
-		if (this == &other)
+		if (this != &other)
 		{
-			return *this;
+			this->~CMyArray();
+			new (this) CMyArray(std::move(other));
 		}
-		delete[] m_data;
-		m_data = other.m_data;
-		m_size = other.m_size;
-		other.m_data = nullptr;
-		other.m_size = 0;
 		return *this;
 	}
 
-	template<typename FromT>
-	CMyArray & operator =(CMyArray<FromT> const& other)
+	CMyArray & operator =(CMyArray const& other)
 	{
-		return *this = CMyArray(other);
+		if (this != &other)
+		{
+			*this = CMyArray(other);
+		}
+		return *this;
 	}
 
 	T & operator [](size_t index)
@@ -258,8 +251,12 @@ public:
 
 	void PushBack(T value)
 	{
-		Resize(m_size + 1);
-		m_data[m_size - 1] = std::move(value);
+		if (m_size == m_capacity)
+		{
+			Reserve(m_capacity ? m_capacity * 2 : 1);
+		}
+		new (m_data + m_size) T(std::move(value));
+		++m_size;
 	}
 
 	size_t Size()const
@@ -267,21 +264,61 @@ public:
 		return m_size;
 	}
 
+	size_t Capacity()const
+	{
+		return m_capacity;
+	}
+
 	void Resize(size_t newSize)
 	{
-		if (newSize == m_size)
+		if (newSize > m_capacity)
+		{
+			Reserve(newSize);
+		}
+
+		if (newSize < m_size)
+		{
+			Destroy(newSize, m_size);
+		}
+		else if (newSize > m_size)
+		{
+			size_t size = m_size;
+			try
+			{
+				while (size != newSize)
+				{
+					new (m_data + size) T();
+					++size;
+				}
+			}
+			catch (...)
+			{
+				Destroy(m_size, size);
+				throw;
+			}
+		}
+		m_size = newSize;
+	}
+
+	void Reserve(size_t newCapacity)
+	{
+		if (newCapacity <= m_capacity)
 		{
 			return;
 		}
-		CMyArray resized(newSize);
-		std::move(begin(), begin() + std::min(newSize, m_size), resized.begin());
-		*this = std::move(resized);
+
+		CMyArray reserved(newCapacity);
+		for (T & item: *this)
+		{
+			new (reserved.m_data + reserved.m_size) T(std::move(item));
+			++reserved.m_size;
+		}
+		*this = std::move(reserved);
 	}
 
 	void Clear()
 	{
-		delete[] m_data;
-		m_data = nullptr;
+		Destroy(0, m_size);
 		m_size = 0;
 	}
 
@@ -347,10 +384,19 @@ public:
 
 private:
 	T *m_data;
-	size_t m_size;
+	size_t m_size, m_capacity;
 
 	static void ThrowIndexIsOutOfRange()
 	{
 		throw std::out_of_range("no item at requested index");
+	}
+
+	void Destroy(size_t begin, size_t end)
+	{
+		while (begin != end)
+		{
+			m_data[begin].~T();
+			++begin;
+		}
 	}
 };
