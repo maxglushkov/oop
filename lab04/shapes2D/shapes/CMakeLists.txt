@@ -4,4 +4,6 @@ add_library(
 	CLineSegment.cpp
 	CRectangle.cpp
 	CTriangle.cpp
+	IShape.cpp
+	ISolidShape.cpp
 )

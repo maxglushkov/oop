@@ -5,8 +5,6 @@ using std::cerr, std::cout;
 
 void PrintUsage(const char *programName);
 
-void PrintShape(IShape const& shape);
-
 int main(int argc, const char *argv[])
 {
 	if (argc > 1)
@@ -30,14 +28,12 @@ int main(int argc, const char *argv[])
 	auto iter = FindShapeWithMaxArea(shapes);
 	if (iter != shapes.end())
 	{
-		cout << "Shape with max area is ";
-		PrintShape(**iter);
+		cout << "Shape with max area is " << (*iter)->ToString() << '\n';
 	}
 	iter = FindShapeWithMinPerimeter(shapes);
 	if (iter != shapes.end())
 	{
-		cout << "Shape with min perimeter is ";
-		PrintShape(**iter);
+		cout << "Shape with min perimeter is " << (*iter)->ToString() << '\n';
 	}
 	return 0;
 }
@@ -51,17 +47,4 @@ void PrintUsage(const char *programName)
 	cerr << "Usage: " << programName << '\n';
 	cerr << "Reads shape descriptions from standard input.\n";
 	cerr << "Prints information about the shapes with max area and min perimeter.\n";
-}
-
-void PrintShape(IShape const& shape)
-{
-	cout << shape.ToString();
-	cout << "\n\tArea: " << shape.GetArea();
-	cout << "\n\tPerimeter: " << shape.GetPerimeter();
-	cout << "\n\tOutline color: " << shape.GetOutlineColor();
-	if (auto solidShape = dynamic_cast<const ISolidShape *>(&shape))
-	{
-		cout << "\n\tFill color: " << solidShape->GetFillColor();
-	}
-	cout << '\n';
 }
