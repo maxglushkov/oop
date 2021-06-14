@@ -164,6 +164,54 @@ TEST_CASE("Extracting substrings")
 	REQUIRE_THROWS(str.SubString(18));
 }
 
+TEST_CASE("Checking string iterators")
+{
+	CMyString str("IteraT\0R", 8);
+	auto it = str.cbegin();
+
+	REQUIRE(str.begin() == it);
+	REQUIRE_FALSE(str.cbegin() != it);
+
+	REQUIRE_FALSE(it == str.cend());
+	REQUIRE(it != str.cend());
+
+	REQUIRE(it < str.cend());
+	REQUIRE(it <= str.cend());
+	REQUIRE_FALSE(it > str.cend());
+	REQUIRE_FALSE(it >= str.cend());
+
+	REQUIRE_FALSE(str.cbegin() < it);
+	REQUIRE(str.cbegin() <= it);
+	REQUIRE_FALSE(str.cbegin() > it);
+	REQUIRE(str.cbegin() >= it);
+
+	REQUIRE_FALSE(str.cend() < it);
+	REQUIRE_FALSE(str.cend() <= it);
+	REQUIRE(str.cend() > it);
+	REQUIRE(str.cend() >= it);
+
+	REQUIRE(*it == 'I');
+	REQUIRE(it[7] == 'R');
+
+	REQUIRE(it - str.end() == -str.GetLength());
+	REQUIRE(*(it - -1) == 't');
+	REQUIRE(*(it + 5) == 'T');
+	REQUIRE(*(6 + it) == '\0');
+	REQUIRE(*(it -= -3) == 'r');
+	REQUIRE(*(it += -2) == 't');
+
+	REQUIRE(--it == str.cbegin());
+	REQUIRE(*it == 'I');
+	REQUIRE(it++ == str.cbegin());
+	REQUIRE(*it == 't');
+	REQUIRE(*++it == 'e');
+	REQUIRE(*it-- == 'e');
+	REQUIRE(*it == 't');
+
+	std::sort(str.rbegin(), str.rend());
+	REQUIRE(strcmp(str.GetStringData(), "treaTRI") == 0);
+}
+
 TEST_CASE("Checking string outputting")
 {
 	constexpr char TEST_STR[] = "Some\0text";
