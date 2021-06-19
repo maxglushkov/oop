@@ -1,5 +1,4 @@
 #pragma once
-#include <cstring>
 #include <stdexcept>
 
 template<typename T>
@@ -150,14 +149,15 @@ public:
 	{
 		if (!capacity)
 		{
-			memset(this, 0, sizeof(CMyArray));
-			return;
+			m_data = nullptr;
 		}
-
-		m_data = static_cast<T *>(malloc(capacity * sizeof(T)));
-		if (!m_data)
+		else
 		{
-			throw std::bad_alloc();
+			m_data = static_cast<T *>(malloc(capacity * sizeof(T)));
+			if (!m_data)
+			{
+				throw std::bad_alloc();
+			}
 		}
 		m_size = 0;
 		m_capacity = capacity;
@@ -165,8 +165,7 @@ public:
 
 	CMyArray(CMyArray && other)
 	{
-		memcpy(this, &other, sizeof(CMyArray));
-		new (&other) CMyArray();
+		Initialize(std::move(other));
 	}
 
 	CMyArray(CMyArray const& other)
@@ -182,7 +181,8 @@ public:
 		}
 		catch (...)
 		{
-			this->~CMyArray();
+			Destroy(0, m_size);
+			free(m_data);
 			throw;
 		}
 	}
@@ -201,7 +201,8 @@ public:
 		}
 		catch (...)
 		{
-			this->~CMyArray();
+			Destroy(0, m_size);
+			free(m_data);
 			throw;
 		}
 	}
@@ -216,8 +217,9 @@ public:
 	{
 		if (this != &other)
 		{
-			this->~CMyArray();
-			new (this) CMyArray(std::move(other));
+			Destroy(0, m_size);
+			free(m_data);
+			Initialize(std::move(other));
 		}
 		return *this;
 	}
@@ -389,6 +391,16 @@ private:
 	static void ThrowIndexIsOutOfRange()
 	{
 		throw std::out_of_range("no item at requested index");
+	}
+
+	void Initialize(CMyArray && other)
+	{
+		m_data = other.m_data;
+		m_size = other.m_size;
+		m_capacity = other.m_capacity;
+		other.m_data = nullptr;
+		other.m_size = 0;
+		other.m_capacity = 0;
 	}
 
 	void Destroy(size_t begin, size_t end)

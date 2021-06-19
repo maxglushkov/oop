@@ -135,14 +135,13 @@ public:
 	typedef CIterator<const CMyString, const char> ConstIterator;
 
 	CMyString()
-		:CMyString(size_t(0))
 	{
+		Initialize();
 	}
 
 	CMyString(CMyString && other)
 	{
-		memcpy(this, &other, sizeof(CMyString));
-		new (&other) CMyString();
+		Initialize(std::move(other));
 	}
 
 	CMyString(CMyString const& other)
@@ -164,10 +163,7 @@ public:
 
 	~CMyString()
 	{
-		if (m_length)
-		{
-			delete[] m_str;
-		}
+		Cleanup();
 	}
 
 	static int Compare(CMyString const& lhs, CMyString const& rhs);
@@ -176,8 +172,8 @@ public:
 	{
 		if (this != &other)
 		{
-			this->~CMyString();
-			new (this) CMyString(std::move(other));
+			Cleanup();
+			Initialize(std::move(other));
 		}
 		return *this;
 	}
@@ -234,11 +230,8 @@ public:
 
 	void Clear()
 	{
-		if (m_length)
-		{
-			delete[] m_str;
-			new (this) CMyString();
-		}
+		Cleanup();
+		Initialize();
 	}
 
 	Iterator begin()
@@ -306,21 +299,42 @@ private:
 	size_t m_length;
 
 	explicit CMyString(size_t length)
-		:m_length(length)
 	{
 		if (!length)
 		{
-			static char EMPTY[] = "";
-			m_str = EMPTY;
+			Initialize();
 		}
 		else
 		{
 			m_str = new char[length + 1];
 			m_str[length] = 0;
+			m_length = length;
 		}
 	}
 
 	[[noreturn]] static void ThrowIndexIsOutOfRange();
+
+	void Initialize()
+	{
+		static char EMPTY[] = "";
+		m_str = EMPTY;
+		m_length = 0;
+	}
+
+	void Initialize(CMyString && other)
+	{
+		m_str = other.m_str;
+		m_length = other.m_length;
+		other.Initialize();
+	}
+
+	void Cleanup()
+	{
+		if (m_length)
+		{
+			delete[] m_str;
+		}
+	}
 };
 
 inline bool operator ==(CMyString const& lhs, CMyString const& rhs)
