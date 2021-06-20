@@ -3,6 +3,7 @@
 Trie Trie::FromMapKeys(std::map<std::string, std::string> const& map)
 {
 	Trie trie;
+	trie.m_root = new Node{};
 	for (auto item: map)
 	{
 		trie.Append(item.first);
@@ -14,6 +15,10 @@ Trie Trie::FromMapKeys(std::map<std::string, std::string> const& map)
 std::map<Trie::size_type, Trie::size_type> Trie::FindLongestMatches(std::string const& str)const
 {
 	std::map<size_type, size_type> matches;
+	if (!m_root)
+	{
+		return matches;
+	}
 
 	const Node *node = m_root;
 	for (size_type pos = 0; pos < str.length();)

@@ -8,14 +8,14 @@ public:
 	typedef std::string::size_type size_type;
 
 	Trie()
-		:m_root(new Node{})
+		:m_root(nullptr)
 	{
 	}
 
 	Trie(Trie && other)
 		:m_root(other.m_root)
 	{
-		new (&other) Trie();
+		other.m_root = nullptr;
 	}
 
 	Trie(const Trie &) = delete;
