@@ -4,7 +4,7 @@
 class ISolidShape: public IShape
 {
 public:
-	std::string ToString()const;
+	std::string ToString()const override;
 
 	virtual uint32_t GetFillColor()const = 0;
 };

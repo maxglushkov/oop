@@ -1,8 +1,9 @@
 #pragma once
 #include "CPoint.h"
 #include "IShape.h"
+#include "../canvas/ICanvasDrawable.h"
 
-class CLineSegment: public IShape
+class CLineSegment: public IShape, public ICanvasDrawable
 {
 public:
 	CLineSegment(CPoint const& start, CPoint const& end, uint32_t color)
@@ -12,22 +13,24 @@ public:
 	{
 	}
 
-	double GetArea()const
+	double GetArea()const override
 	{
 		return 0;
 	}
 
-	double GetPerimeter()const
+	double GetPerimeter()const override
 	{
 		return m_start.Distance(m_end);
 	}
 
-	std::string ToString()const;
+	std::string ToString()const override;
 
-	uint32_t GetOutlineColor()const
+	uint32_t GetOutlineColor()const override
 	{
 		return m_color;
 	}
+
+	void Draw(ICanvas & canvas)const override;
 
 	CPoint GetStartPoint()const
 	{

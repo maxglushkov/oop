@@ -1,8 +1,9 @@
 #pragma once
 #include "CPoint.h"
 #include "ISolidShape.h"
+#include "../canvas/ICanvasDrawable.h"
 
-class CTriangle: public ISolidShape
+class CTriangle: public ISolidShape, public ICanvasDrawable
 {
 public:
 	CTriangle(CPoint const& vertex1, CPoint const& vertex2, CPoint const& vertex3,
@@ -13,7 +14,7 @@ public:
 	{
 	}
 
-	double GetArea()const
+	double GetArea()const override
 	{
 		const double a = m_vertices[0].Distance(m_vertices[1]);
 		const double b = m_vertices[0].Distance(m_vertices[2]);
@@ -22,24 +23,26 @@ public:
 		return sqrt(p * (p - a) * (p - b) * (p - c));
 	}
 
-	double GetPerimeter()const
+	double GetPerimeter()const override
 	{
 		return m_vertices[0].Distance(m_vertices[1])
 		     + m_vertices[0].Distance(m_vertices[2])
 		     + m_vertices[1].Distance(m_vertices[2]);
 	}
 
-	std::string ToString()const;
+	std::string ToString()const override;
 
-	uint32_t GetOutlineColor()const
+	uint32_t GetOutlineColor()const override
 	{
 		return m_outlineColor;
 	}
 
-	uint32_t GetFillColor()const
+	uint32_t GetFillColor()const override
 	{
 		return m_fillColor;
 	}
+
+	void Draw(ICanvas & canvas)const override;
 
 	CPoint GetVertex1()const
 	{

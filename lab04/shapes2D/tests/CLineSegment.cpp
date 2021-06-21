@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+#include "mock-canvas.h"
 #include "../shapes/CLineSegment.h"
 
 TEST_CASE("Testing required CLineSegment functions")
@@ -12,4 +12,19 @@ TEST_CASE("Testing required CLineSegment functions")
 	REQUIRE(segment.GetStartPoint().y == -0.001);
 	REQUIRE(segment.GetEndPoint().x == -200.0);
 	REQUIRE(segment.GetEndPoint().y == 10.0);
+}
+
+TEST_CASE("Drawing CLineSegment")
+{
+	using namespace fakeit;
+	Mock<ICanvas> mock;
+	When(Method(mock, DrawLine)).AlwaysReturn();
+
+	CLineSegment segment({8.9, -0.001}, {-200, 10}, 0xffff00);
+	segment.Draw(mock.get());
+	Verify(Method(mock, DrawLine).Using(
+		segment.GetStartPoint(),
+		segment.GetEndPoint(),
+		segment.GetOutlineColor()
+	)).Exactly(1);
 }

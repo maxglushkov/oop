@@ -6,7 +6,7 @@
 #include "../shapes/CRectangle.h"
 #include "../shapes/CTriangle.h"
 
-void TestReadingShapes(std::istream & input, std::vector<IShapePtr> & shapes, size_t expectedNewSize)
+static void TestReadingShapes(std::istream & input, std::vector<IShapePtr> & shapes, size_t expectedNewSize)
 {
 	REQUIRE_THROWS(ReadShapes(input, shapes));
 	input.clear();

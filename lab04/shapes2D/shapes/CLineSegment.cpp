@@ -9,3 +9,8 @@ std::string CLineSegment::ToString()const
 	     << ", " << IShape::ToString();
 	return desc.str();
 }
+
+void CLineSegment::Draw(ICanvas & canvas)const
+{
+	canvas.DrawLine(m_start, m_end, m_color);
+}

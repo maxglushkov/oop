@@ -7,6 +7,7 @@ set(CMAKE_CXX_EXTENSIONS NO)
 enable_testing()
 add_subdirectory(tests)
 
+add_subdirectory(canvas)
 add_subdirectory(shapes)
 
 add_library(
@@ -17,6 +18,12 @@ add_library(
 add_executable(
 	shapes2D
 	main.cpp
+	$<TARGET_OBJECTS:canvas>
 	$<TARGET_OBJECTS:shapes>
 	$<TARGET_OBJECTS:testable>
+)
+
+target_link_libraries(
+	shapes2D
+	${SDL2_GFX_LIBRARIES}
 )

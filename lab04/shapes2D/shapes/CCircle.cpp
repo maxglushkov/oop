@@ -9,3 +9,9 @@ std::string CCircle::ToString()const
 	     << ", " << ISolidShape::ToString();
 	return desc.str();
 }
+
+void CCircle::Draw(ICanvas & canvas)const
+{
+	canvas.FillCircle(m_center, m_radius, m_fillColor);
+	canvas.DrawCircle(m_center, m_radius, m_outlineColor);
+}

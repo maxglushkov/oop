@@ -1,6 +1,7 @@
 #include <iostream>
+#include "canvas/CCanvas.h"
+#include "canvas/ICanvasDrawable.h"
 #include "shapes-array.h"
-#include "shapes/ISolidShape.h"
 using std::cerr, std::cout;
 
 void PrintUsage(const char *programName);
@@ -13,29 +14,34 @@ int main(int argc, const char *argv[])
 		return 1;
 	}
 
-	std::vector<IShapePtr> shapes;
 	try
 	{
+		std::vector<IShapePtr> shapes;
 		ReadShapes(std::cin, shapes);
+		auto iter = FindShapeWithMaxArea(shapes);
+		if (iter != shapes.end())
+		{
+			cout << "Shape with max area is " << (*iter)->ToString() << '\n';
+		}
+		iter = FindShapeWithMinPerimeter(shapes);
+		if (iter != shapes.end())
+		{
+			cout << "Shape with min perimeter is " << (*iter)->ToString() << '\n';
+		}
+
+		CCanvas canvas;
+		for (IShapePtr const& shape: shapes)
+		{
+			dynamic_cast<ICanvasDrawable const&>(*shape).Draw(canvas);
+		}
+		canvas.DisplayAndPause();
+		return 0;
 	}
 	catch (std::exception const& e)
 	{
 		cerr << "Error: " << e.what() << '\n';
 		return 1;
 	}
-
-	cout << std::hex;
-	auto iter = FindShapeWithMaxArea(shapes);
-	if (iter != shapes.end())
-	{
-		cout << "Shape with max area is " << (*iter)->ToString() << '\n';
-	}
-	iter = FindShapeWithMinPerimeter(shapes);
-	if (iter != shapes.end())
-	{
-		cout << "Shape with min perimeter is " << (*iter)->ToString() << '\n';
-	}
-	return 0;
 }
 
 void PrintUsage(const char *programName)
