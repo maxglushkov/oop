@@ -145,7 +145,23 @@ public:
 	typedef CIterator<CMyArray, T> Iterator;
 	typedef CIterator<const CMyArray, const T> ConstIterator;
 
-	explicit CMyArray(size_t capacity = 0)
+	struct WithCapacity
+	{
+		explicit WithCapacity(size_t capacity)
+			:capacity(capacity)
+		{
+		}
+
+		operator size_t()const
+		{
+			return capacity;
+		}
+
+	private:
+		size_t capacity;
+	};
+
+	CMyArray(WithCapacity capacity = WithCapacity(0))
 	{
 		if (!capacity)
 		{
@@ -169,7 +185,7 @@ public:
 	}
 
 	CMyArray(CMyArray const& other)
-		:CMyArray(other.Capacity())
+		:CMyArray(WithCapacity(other.Capacity()))
 	{
 		try
 		{
@@ -189,7 +205,7 @@ public:
 
 	template<typename FromT>
 	CMyArray(CMyArray<FromT> const& other)
-		:CMyArray(other.Capacity())
+		:CMyArray(WithCapacity(other.Capacity()))
 	{
 		try
 		{
@@ -251,13 +267,19 @@ public:
 		return m_data[index];
 	}
 
-	void PushBack(T value)
+	void PushBack(T const& value)
 	{
+		PushBack(T(value));
+	}
+
+	void PushBack(T && value)
+	{
+		T saved(std::move(value));
 		if (m_size == m_capacity)
 		{
 			Reserve(m_capacity ? m_capacity * 2 : 1);
 		}
-		new (m_data + m_size) T(std::move(value));
+		new (m_data + m_size) T(std::move(saved));
 		++m_size;
 	}
 
@@ -309,7 +331,7 @@ public:
 			return;
 		}
 
-		CMyArray reserved(newCapacity);
+		CMyArray reserved = WithCapacity(newCapacity);
 		for (T & item: *this)
 		{
 			new (reserved.m_data + reserved.m_size) T(std::move(item));
