@@ -207,7 +207,7 @@ public:
 		return m_str[index];
 	}
 
-	char operator [](size_t index)const
+	const char & operator [](size_t index)const
 	{
 		if (index >= m_length)
 		{

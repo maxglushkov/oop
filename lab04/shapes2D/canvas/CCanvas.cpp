@@ -36,23 +36,22 @@ void CCanvas::DrawLine(CPoint const& from, CPoint const& to, uint32_t lineColor)
 
 void CCanvas::FillPolygon(std::vector<CPoint> const& points, uint32_t fillColor)
 {
+	std::vector<Sint16> xCoords;
+	std::vector<Sint16> yCoords;
 	const size_t nCoords = points.size();
-	Sint16 *xCoords = new Sint16[2 * nCoords];
-	Sint16 *yCoords = xCoords + nCoords;
+	xCoords.reserve(nCoords);
+	yCoords.reserve(nCoords);
+
 	for (CPoint const& point: points)
 	{
-		*xCoords++ = point.x;
-		*yCoords++ = point.y;
+		xCoords.push_back(point.x);
+		yCoords.push_back(point.y);
 	}
-	xCoords -= nCoords;
-	yCoords -= nCoords;
 
-	if (filledPolygonColor(m_renderer, xCoords, yCoords, nCoords, BgrToRgba(fillColor)) < 0)
+	if (filledPolygonColor(m_renderer, xCoords.data(), yCoords.data(), nCoords, BgrToRgba(fillColor)) < 0)
 	{
-		delete[] xCoords;
 		ThrowSDLError();
 	}
-	delete[] xCoords;
 }
 
 void CCanvas::DrawCircle(CPoint const& center, double radius, uint32_t lineColor)
