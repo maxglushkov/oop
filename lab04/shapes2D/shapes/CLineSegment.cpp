@@ -6,7 +6,7 @@ std::string CLineSegment::ToString()const
 	std::ostringstream desc;
 	desc << "line segment with the beginning at " << m_start
 	     << ", the end at " << m_end
-	     << ", " << IShape::ToString();
+	     << ", " << CShape::ToString();
 	return desc.str();
 }
 

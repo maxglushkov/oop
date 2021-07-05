@@ -1,9 +1,9 @@
 #pragma once
 #include "CPoint.h"
-#include "ISolidShape.h"
+#include "CSolidShape.h"
 #include "../canvas/ICanvasDrawable.h"
 
-class CTriangle: public ISolidShape, public ICanvasDrawable
+class CTriangle: public CSolidShape, public ICanvasDrawable
 {
 public:
 	CTriangle(CPoint const& vertex1, CPoint const& vertex2, CPoint const& vertex3,

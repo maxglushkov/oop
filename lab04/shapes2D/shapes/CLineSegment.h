@@ -1,9 +1,9 @@
 #pragma once
 #include "CPoint.h"
-#include "IShape.h"
+#include "CShape.h"
 #include "../canvas/ICanvasDrawable.h"
 
-class CLineSegment: public IShape, public ICanvasDrawable
+class CLineSegment: public CShape, public ICanvasDrawable
 {
 public:
 	CLineSegment(CPoint const& start, CPoint const& end, uint32_t color)

@@ -1,7 +1,7 @@
 #include <iomanip>
-#include "IShape.h"
+#include "CShape.h"
 
-std::string IShape::ToString()const
+std::string CShape::ToString()const
 {
 	std::ostringstream desc;
 	desc << "area " << GetArea()

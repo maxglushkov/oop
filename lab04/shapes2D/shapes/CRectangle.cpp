@@ -7,7 +7,7 @@ std::string CRectangle::ToString()const
 	desc << "rectangle with top left point at " << m_topLeft
 	     << ", width " << m_width
 	     << ", height " << m_height
-	     << ", " << ISolidShape::ToString();
+	     << ", " << CSolidShape::ToString();
 	return desc.str();
 }
 

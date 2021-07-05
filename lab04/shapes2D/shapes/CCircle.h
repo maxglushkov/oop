@@ -1,9 +1,9 @@
 #pragma once
 #include "CPoint.h"
-#include "ISolidShape.h"
+#include "CSolidShape.h"
 #include "../canvas/ICanvasDrawable.h"
 
-class CCircle: public ISolidShape, public ICanvasDrawable
+class CCircle: public CSolidShape, public ICanvasDrawable
 {
 public:
 	CCircle(CPoint const& center, double radius, uint32_t outlineColor, uint32_t fillColor)

@@ -6,7 +6,7 @@ std::string CCircle::ToString()const
 	std::ostringstream desc;
 	desc << "circle with the center at " << m_center
 	     << ", radius " << m_radius
-	     << ", " << ISolidShape::ToString();
+	     << ", " << CSolidShape::ToString();
 	return desc.str();
 }
 

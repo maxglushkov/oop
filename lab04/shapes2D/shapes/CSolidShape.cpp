@@ -1,10 +1,10 @@
 #include <iomanip>
-#include "ISolidShape.h"
+#include "CSolidShape.h"
 
-std::string ISolidShape::ToString()const
+std::string CSolidShape::ToString()const
 {
 	std::ostringstream desc;
-	desc << IShape::ToString()
+	desc << CShape::ToString()
 	     << std::hex << std::setfill('0')
 	     << ", fill color #" << std::setw(6) << GetFillColor();
 	return desc.str();

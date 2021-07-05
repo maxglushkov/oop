@@ -1,9 +1,9 @@
 #pragma once
 #include "CPoint.h"
-#include "ISolidShape.h"
+#include "CSolidShape.h"
 #include "../canvas/ICanvasDrawable.h"
 
-class CRectangle: public ISolidShape, public ICanvasDrawable
+class CRectangle: public CSolidShape, public ICanvasDrawable
 {
 public:
 	CRectangle(CPoint const& topLeft, double width, double height, uint32_t outlineColor, uint32_t fillColor)
